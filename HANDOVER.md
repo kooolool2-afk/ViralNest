@@ -1,32 +1,41 @@
-# ViralNest website: handover
+# ViralNest 2.0 handover
 
-**Version 1.2.0** (content from the Master Brief v2.0, agency motion layer). Source on GitHub: `kooolool2-afk/viralnest` (private). **Status:** built and tested locally; ready for Hostinger staging. Not deployed: no hosting, DNS or production data was touched.
+ViralNest is now a custom PHP + MySQL website with its own dashboard, **ViralNest Studio**. WordPress is not used. The old WordPress version is kept on the `wordpress` branch for reference only.
 
-## What is in this folder
+## What's in the box
+- **Public site (EN + AR, right-to-left):**
+  - Pages: Home, Services (8 categories, each with its own page), Work (portfolio case studies), About, Work with us (freelancer applications), Contact, Request a Quote, Privacy, and 404.
+  - Features: animations that respect reduced motion, a consent banner, first-party analytics, SEO (sitemap, hreflang, schema) and the real ViralNest logo.
+- **ViralNest Studio (`/admin`):**
+  - Overview
+  - Quote requests (statuses, notes, CSV)
+  - Freelancers (New, Reviewing, Shortlisted, Contacted, Rejected; filters, CV download, CSV, email alerts)
+  - Analytics
+  - Services
+  - Portfolio (case studies with client-permission and verified-results switches)
+  - Website content (every text in EN/AR, with draft and publish)
+  - Media
+  - Settings
+  - Team (roles: admin, sales, editor, analyst)
 
-| File | What it is |
+## Where things are
+| Need | File |
 |---|---|
-| `viralnest-core.zip` | WordPress plugin to upload (Plugins > Add New > Upload). Install first. |
-| `viralnest-theme.zip` | WordPress theme to upload (Appearance > Themes > Upload). Prebuilt; no Node.js needed on the server. |
-| `viralnest-source.zip` | Full source: plugin, theme with `src/`, tests, tools, docs, design source. |
-| `docs/DEPLOYMENT-HOSTINGER.md` | Step-by-step hPanel guide: staging, database, install, permalinks, SSL, SMTP, caching, cron, backups, rollback, smoke tests. |
-| `docs/OWNER-GUIDE.md` | How to edit content, services, prices, portfolio, manage leads, read analytics, manage roles. |
-| `docs/DESIGN-GUIDE.md` | Colors from the logo, typography, spacing, components, motion, RTL. |
-| `docs/DATABASE-SCHEMA.md` | Tables, indexes, migrations, retention. |
-| `docs/VERIFICATION-REPORT.md` | Every test actually run and its result, bugs fixed, pending live checks. |
-| `docs/LAUNCH-CHECKLIST.md` | Missing inputs from ViralNest and the go-live steps. |
-| `README.md` | Stack, versions, build and test commands, folder map. |
-| `screenshots/` | Desktop (1440) and mobile (390) screenshots, EN and AR, plus admin screens. Admin screenshots used clearly labelled sample leads that were deleted afterwards. |
+| Upload to Hostinger, step by step | `docs/DEPLOYMENT-HOSTINGER.md` |
+| Daily use of Studio | `docs/OWNER-GUIDE.md` |
+| What to tick before launch | `docs/LAUNCH-CHECKLIST.md` |
+| What was tested and what's pending | `docs/VERIFICATION-REPORT.md` |
+| Colours, type, components | `docs/DESIGN-GUIDE.md` |
+| Tables and data retention | `docs/DATABASE-SCHEMA.md` |
+| Screenshots | `design/screenshots/` |
+| Upload package | `dist/viralnest-hostinger-2.0.0.zip` (build with `tools/package.sh`) |
 
-## Results in one line each
+## Rules this build follows
+- No invented testimonials, results, client logos, prices, contact details or office locations. Prices are hidden until you switch them on.
+- Portfolio drafts (maloum, Rika Homemade, King Tut Stone) stay **unpublished**. Studio will not publish a case study until "Client approved publication in writing" is on. Results show only when "Outcomes verified" is on.
+- Personal data (names, emails, phones, messages, CVs) stays in your database and is never sent to analytics.
+- Credentials live only in `app/config.php` on the server, never in Git or in the package.
 
-- Integration tests: 93 passed, 0 failed. Browser end-to-end tests: 135 passed, 0 failed. Clean install from the ZIPs: OK.
-- Home page: about 146 KB over 8 requests; no layout shift.
-
-## Decisions waiting for ViralNest
-
-See `docs/LAUNCH-CHECKLIST.md` section A. The most important: WhatsApp/email/social channels, lead-alert email + SMTP, written client permission for the three portfolio drafts, a check of which sub-services show in the quote form, legal review of the privacy text, native review of Arabic copy, and a logo file without the second line "Digital growth accelerated".
-
-## Needs your explicit go-ahead (not done)
-
-Pushing to production, changing DNS/nameservers, enabling the HTTPS canonical redirect on the live domain.
+## Next steps
+1. Send the portfolio links and brands so the case studies can be written up from what you actually delivered.
+2. Follow `docs/DEPLOYMENT-HOSTINGER.md`, then work through `docs/LAUNCH-CHECKLIST.md`.

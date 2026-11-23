@@ -1,106 +1,81 @@
 /*
- * Captures design/screenshots from a local/staging site.
- * Usage: node tools/screenshots.js [baseUrl]   (admin login via VN_ADMIN_USER / VN_ADMIN_PASS)
+ * Captures design/screenshots from a local or staging copy (never production).
+ * Usage: VN_ADMIN_EMAIL=… VN_ADMIN_PASS=… node tools/screenshots.js [baseUrl]
  */
 const { chromium } = require('playwright');
+const fs = require('fs');
 const path = require('path');
+
 const BASE = (process.argv[2] || 'http://localhost:8080').replace(/\/$/, '');
 const OUT = path.join(__dirname, '..', 'design', 'screenshots');
-const USER = process.env.VN_ADMIN_USER || 'admin';
+const EMAIL = process.env.VN_ADMIN_EMAIL;
 const PASS = process.env.VN_ADMIN_PASS;
-if (!PASS) { console.error('Set VN_ADMIN_USER and VN_ADMIN_PASS (staging administrator).'); process.exit(2); }
+if (!EMAIL || !PASS) { console.error('Set VN_ADMIN_EMAIL and VN_ADMIN_PASS.'); process.exit(2); }
+fs.mkdirSync(OUT, { recursive: true });
 
 const pages = [
-	['home', '/'], ['home-ar', '/ar/'], ['about', '/about/'], ['services', '/services/'],
-	['service-detail', '/services/social-media-management/'], ['service-detail-ar', '/ar/services/media-buying-performance/'],
-	['portfolio', '/work/'], ['contact', '/contact/'], ['quote', '/request-a-quote/?service=meta-ads'],
-	['quote-ar', '/ar/request-a-quote/'], ['privacy-ar', '/ar/privacy-policy/'], ['404-ar', '/ar/missing-page/'],
+	['home', '/'], ['home-ar', '/ar/'], ['services', '/services/'], ['service', '/services/social-media-management/'],
+	['service-ar', '/ar/services/social-media-management/'], ['work', '/work/'], ['work-with-us', '/work-with-us/'],
+	['work-with-us-ar', '/ar/work-with-us/'], ['about', '/about/'], ['contact', '/contact/'],
+	['quote', '/request-a-quote/?service=social-media-management'], ['quote-ar', '/ar/request-a-quote/'], ['404-ar', '/ar/missing-page/'],
 ];
+const admin = ['', 'leads', 'applications', 'analytics', 'services', 'portfolio', 'content', 'settings', 'users'];
 
 async function settle(p) {
 	await p.evaluate(async () => {
-		for (let y = 0; y < document.body.scrollHeight; y += 500) { window.scrollTo({ top: y, behavior: 'instant' }); await new Promise((r) => setTimeout(r, 90)); }
+		for (let y = 0; y < document.body.scrollHeight; y += 400) { window.scrollTo({ top: y, behavior: 'instant' }); await new Promise((r) => setTimeout(r, 110)); }
 		window.scrollTo({ top: 0, behavior: 'instant' });
 	});
-	await p.waitForTimeout(1400);
+	await p.waitForTimeout(1500);
 }
 
 (async () => {
 	const b = await chromium.launch();
 	for (const [vpName, vp] of [['desktop', { width: 1440, height: 900 }], ['mobile', { width: 390, height: 844 }]]) {
-		const ctx = await b.newContext({ viewport: vp, deviceScaleFactor: 2, isMobile: vpName === 'mobile', hasTouch: vpName === 'mobile' });
-		await ctx.addInitScript(() => { try { localStorage.setItem('vn_consent', JSON.stringify({ v: 'denied', t: 1 })); } catch (e) {} });
+		const ctx = await b.newContext({ viewport: vp, deviceScaleFactor: 1 });
+		await ctx.addInitScript(() => { try { localStorage.setItem('vn_consent', 'denied'); } catch (e) { /* */ } });
 		const p = await ctx.newPage();
 		for (const [name, url] of pages) {
+			if (vpName === 'mobile' && !/^(home|home-ar|work-with-us-ar|quote|service)$/.test(name)) continue;
 			await p.goto(BASE + url, { waitUntil: 'networkidle' });
+			await p.waitForTimeout(1200);
+			await p.screenshot({ path: path.join(OUT, `${vpName}-${name}-first-view.jpg`), type: 'jpeg', quality: 82 });
 			await settle(p);
-			await p.screenshot({ path: path.join(OUT, `${vpName}-${name}.jpg`), type: 'jpeg', quality: 82, fullPage: true });
-			if (name === 'home' || name === 'home-ar') {
-				await p.screenshot({ path: path.join(OUT, `${vpName}-${name}-first-view.jpg`), type: 'jpeg', quality: 88 });
-			}
+			await p.screenshot({ path: path.join(OUT, `${vpName}-${name}.jpg`), type: 'jpeg', quality: 78, fullPage: true });
 		}
-		if (vpName === 'mobile') {
+		if (vpName === 'desktop') {
+			await p.goto(BASE + '/');
+			await p.click('[data-vn-mega-btn]');
+			await p.waitForTimeout(700);
+			await p.screenshot({ path: path.join(OUT, 'desktop-mega-menu.jpg'), type: 'jpeg', quality: 82 });
+		} else {
 			await p.goto(BASE + '/');
 			await p.click('[data-vn-menu-btn]');
-			await p.waitForTimeout(500);
-			await p.screenshot({ path: path.join(OUT, 'mobile-menu-open.jpg'), type: 'jpeg', quality: 85 });
-			await p.goto(BASE + '/ar/');
-			await p.click('[data-vn-menu-btn]');
-			await p.waitForTimeout(500);
-			await p.screenshot({ path: path.join(OUT, 'mobile-menu-open-ar.jpg'), type: 'jpeg', quality: 85 });
-			// Validation state
-			await p.goto(BASE + '/request-a-quote/');
-			await p.click('[data-vn-submit]');
-			await p.waitForTimeout(600);
-			await p.screenshot({ path: path.join(OUT, 'mobile-quote-validation.jpg'), type: 'jpeg', quality: 85 });
+			await p.waitForTimeout(1000);
+			await p.screenshot({ path: path.join(OUT, 'mobile-menu.jpg'), type: 'jpeg', quality: 82 });
 		}
 		await ctx.close();
 	}
-	// Consent banner as a first-time visitor sees it.
-	{
-		const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
-		const p = await ctx.newPage();
-		await p.goto(BASE + '/', { waitUntil: 'networkidle' });
-		await p.waitForTimeout(1200);
-		await p.screenshot({ path: path.join(OUT, 'desktop-consent-banner.jpg'), type: 'jpeg', quality: 85 });
-		await ctx.close();
+	const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } });
+	const p = await ctx.newPage();
+	await p.goto(BASE + '/admin/login');
+	await p.screenshot({ path: path.join(OUT, 'admin-login.jpg'), type: 'jpeg', quality: 82 });
+	await p.fill('input[name=email]', EMAIL);
+	await p.fill('input[name=password]', PASS);
+	await p.click('button[type=submit]');
+	await p.waitForURL(/\/admin/);
+	for (const s of admin) {
+		await p.goto(BASE + '/admin/' + s);
+		await p.screenshot({ path: path.join(OUT, `admin-${s || 'overview'}.jpg`), type: 'jpeg', quality: 80, fullPage: true });
 	}
-	// Admin screens.
-	{
-		const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
-		const p = await ctx.newPage();
-		await p.goto(BASE + '/wp-login.php');
-		await p.fill('#user_login', USER);
-		await p.fill('#user_pass', PASS);
-		await Promise.all([p.waitForNavigation(), p.click('#wp-submit')]);
-		const admin = [
-			['admin-website-content', '/wp-admin/admin.php?page=viralnest'],
-			['admin-website-content-structure', '/wp-admin/admin.php?page=viralnest&tab=structure'],
-			['admin-services', '/wp-admin/edit.php?post_type=vn_service'],
-			['admin-portfolio', '/wp-admin/edit.php?post_type=vn_project'],
-			['admin-leads', '/wp-admin/admin.php?page=vn-leads'],
-			['admin-analytics', '/wp-admin/admin.php?page=vn-analytics&range=30'],
-			['admin-settings', '/wp-admin/admin.php?page=vn-settings'],
-		];
-		for (const [name, url] of admin) {
-			await p.goto(BASE + url, { waitUntil: 'networkidle' });
-			await p.screenshot({ path: path.join(OUT, `${name}.jpg`), type: 'jpeg', quality: 82, fullPage: true });
-		}
-		const svc = await p.evaluate(async (base) => {
-			const r = await fetch(base + '/wp-json/vn/v1/services?lang=en'); const j = await r.json();
-			return (j.services || []).find((s) => s.slug === 'social-media-management' || s.parent === 0);
-		}, BASE);
-		await p.goto(BASE + '/wp-admin/edit.php?post_type=vn_service');
-		const editLink = await p.locator('a.row-title').first().getAttribute('href');
-		await p.goto(editLink, { waitUntil: 'networkidle' });
-		await p.screenshot({ path: path.join(OUT, 'admin-service-edit.jpg'), type: 'jpeg', quality: 82, fullPage: true });
-		const leadLink = await p.goto(BASE + '/wp-admin/admin.php?page=vn-leads').then(() => p.locator('a[href*="page=vn-leads&lead="]').first().getAttribute('href').catch(() => null));
-		if (leadLink) {
-			await p.goto(new URL(leadLink, BASE).toString(), { waitUntil: 'networkidle' });
-			await p.screenshot({ path: path.join(OUT, 'admin-lead-detail.jpg'), type: 'jpeg', quality: 82, fullPage: true });
-		}
-		await ctx.close();
-	}
+	const lead = await p.locator('a[href^="/admin/leads/"]').first().getAttribute('href').catch(() => null);
+	if (lead) { await p.goto(BASE + lead); await p.screenshot({ path: path.join(OUT, 'admin-lead.jpg'), type: 'jpeg', quality: 80, fullPage: true }); }
+	await p.goto(BASE + '/admin/applications');
+	const app = await p.locator('a.a-strong[href^="/admin/applications/"]').first().getAttribute('href').catch(() => null);
+	if (app) { await p.goto(BASE + app); await p.screenshot({ path: path.join(OUT, 'admin-application.jpg'), type: 'jpeg', quality: 80, fullPage: true }); }
+	await p.goto(BASE + '/admin/portfolio');
+	const proj = await p.locator('a.a-project').first().getAttribute('href').catch(() => null);
+	if (proj) { await p.goto(BASE + proj); await p.screenshot({ path: path.join(OUT, 'admin-case-study-edit.jpg'), type: 'jpeg', quality: 80, fullPage: true }); }
 	await b.close();
-	console.log('done');
+	console.log('Screenshots in', OUT);
 })();

@@ -1,112 +1,85 @@
 # ViralNest website
 
-Production-ready WordPress build for **ViralNest** (https://viralnesteg.com), the Egypt-based hybrid digital marketing agency ("We make brands spread."). English is the default language at `/`, Egyptian Arabic lives at `/ar/`.
+Custom website and team dashboard for **ViralNest** (https://viralnesteg.com), the Egypt-based hybrid digital marketing agency ("We make brands spread."). English is the default language at `/`, Egyptian Arabic lives at `/ar/`.
 
-It has two parts:
+Version 2 is a full rebuild **without WordPress**: plain PHP 8 + MySQL on the server, a prebuilt Vite frontend, and its own branded dashboard, **ViralNest Studio**, at `/admin`. The earlier WordPress build is kept for reference on the `wordpress` branch.
 
-| Part | Folder | What it does |
-|---|---|---|
-| **ViralNest Core** plugin | `wp-content/plugins/viralnest-core/` | Data, URLs and business logic: bilingual routing, services, portfolio, Website Content editor, quote form processing, leads, analytics, settings, SEO, privacy tools, roles. |
-| **ViralNest** theme | `wp-content/themes/viralnest/` | Presentation: templates, design system, signature hero animation, quote form UI. Ships with prebuilt assets in `assets/dist/`, so the server never needs Node.js. |
+## What's in it
 
-No page builder, no WordPress core changes, no third-party plugins required.
+| Area | Pages / screens |
+|---|---|
+| Public site (EN + AR, RTL) | Home, Services, one page per service category (sub-services as sections), Work (portfolio with filters), case study pages, Work with us (freelancer applications), About, Contact, Request a Quote, Privacy policy, 404 |
+| ViralNest Studio (`/admin`) | Overview, Quote requests (Leads), Freelancers (applications + CVs), Analytics, Services, Portfolio, Media, Website Content (EN/AR, draft → publish), Settings, Team, My account |
+| Built in | Quote form with service picker and phone country codes, freelancer form with PDF CV upload, consent banner, first-party analytics, optional GA4, SEO (titles, hreflang, JSON-LD, sitemap, robots), email alerts over SMTP, roles, audit log, data retention |
 
 ## Stack and tested versions
 
 | Component | Required | Tested with |
 |---|---|---|
-| WordPress | 6.5 or newer | 6.5.5 |
-| PHP | 8.1 or newer (extensions: `mysqli`, `json`, `mbstring`; `intl` optional) | 8.3.6 |
-| Database | MySQL 5.7+ / MariaDB 10.4+ | MariaDB 10.11.14 |
-| Hosting | Hostinger Web Premium (shared, Apache/LiteSpeed) | Built for it; not yet deployed |
-| Build only (your computer) | Node.js 20+ | Node 22.23.5, Vite 7.3.7 |
-| Fonts (self-hosted) | Sora + Readex Pro variable, via @fontsource-variable 5.3.0 | |
-| Phone rules | Generated from libphonenumber-js 1.12.43 metadata (245 countries) | |
-| Tests | Playwright + Chromium (browser checks), PHP CLI (integration checks) | |
+| PHP | 8.1+ with `pdo_mysql`, `mbstring`, `json`, `fileinfo`, `gd` (with WebP) for image resizing | 8.3 |
+| Database | MySQL 5.7+ / MariaDB 10.4+ | MariaDB 10.11 |
+| Hosting | Hostinger Web Premium (Apache/LiteSpeed, `.htaccess`) | Built for it; not yet deployed |
+| Build only (your computer) | Node.js 20+ | Node 22, Vite 7.3.7 |
+| Fonts | Sora + Readex Pro variable, self-hosted | @fontsource-variable 5.3.0 |
+| Tests | PHP CLI (integration) and Playwright + Chromium (browser) | |
+
+No framework, no Composer packages, no Node.js on the server.
 
 ## Folder map
 
 ```
 viralnest/
-├── README.md                      this file
-├── docs/                          deployment, owner, design, schema, verification, launch checklist
-├── design/
-│   ├── screenshots/               desktop + mobile, EN + AR, admin screens
-│   └── source/                    the original logo as supplied
-├── wp-content/
-│   ├── plugins/viralnest-core/
-│   │   ├── viralnest-core.php     bootstrap, version constants
-│   │   ├── includes/              routing, i18n strings, leads, tracking, SEO, settings, catalog, phone, privacy, starter content
-│   │   ├── admin/                 Website Content, Leads, Analytics, Settings screens, meta boxes, admin assets
-│   │   └── data/                  phone rules (JSON) + brand images used by starter content
-│   └── themes/viralnest/
-│       ├── *.php, templates/, parts/, inc/   PHP templates
-│       ├── src/css, src/js        source (edit these)
-│       ├── assets/dist/           built CSS/JS (what the site loads)
-│       ├── assets/fonts, assets/img
-│       ├── build/, vite.config.js, package.json
-├── tests/
-│   ├── php/run-tests.php          integration tests (real WordPress + database)
-│   └── e2e/run-e2e.js             browser end-to-end tests (Playwright)
-└── tools/                         local setup, phone data generator, screenshot script
+├── app/                      PHP application (upload it NEXT TO public_html, not inside)
+│   ├── bootstrap.php         loads config and src/
+│   ├── config.sample.php     copy to config.php on the server (never committed)
+│   ├── src/                  routing, i18n, content, catalog, leads, applications, auth, admin, SEO, mail…
+│   ├── views/site/           public page templates and parts
+│   ├── views/admin/          ViralNest Studio screens
+│   ├── migrations/           SQL schema (applied automatically)
+│   ├── data/                 phone rules, brand images
+│   └── storage/              logs, sessions, CVs (private, never public)
+├── public/                   the web root (contents go INTO public_html)
+│   ├── index.php             single entry point
+│   ├── .htaccess             rewrites, security, caching
+│   ├── assets/               dist/ (built CSS/JS), img/, fonts/
+│   └── uploads/              images uploaded in Media (scripts can't run here)
+├── frontend/                 source for the CSS/JS (Vite). Build output goes to public/assets/dist
+├── tests/                    php/run-tests.php and e2e/run-e2e.js
+├── tools/                    dev server, router, phone-data generator, screenshot script
+├── docs/                     deployment, owner guide, design, schema, verification, launch checklist
+└── design/                   screenshots and the original logo
 ```
 
-## Install (summary)
-
-Full step-by-step for Hostinger, including staging, SSL, SMTP, backups and rollback: [docs/DEPLOYMENT-HOSTINGER.md](docs/DEPLOYMENT-HOSTINGER.md).
-
-1. Upload and activate `viralnest-core.zip` (Plugins > Add New > Upload).
-2. Upload and activate `viralnest-theme.zip` (Appearance > Themes > Add New > Upload).
-3. Settings > Permalinks: choose **Post name** and save.
-4. Go to **ViralNest > Settings** and fill in contact channels, notification email and tracking choices.
-
-Activation creates the database tables, roles and starter content from the Master Brief v2.0 (8 service categories and 43 sub-services with EN/AR text; three unpublished portfolio drafts; one draft project template). It never publishes invented facts, prices, testimonials, results or contacts.
-
-Upgrading: 1.1.0 → 1.2.0 can be installed over the existing plugin and theme (new homepage sections switch on automatically). From 1.0.0, install fresh on staging instead, because the starter content from the brief is only added on a first install.
-
-## Build the frontend (only when you change `src/`)
+## Run it locally
 
 ```bash
-cd wp-content/themes/viralnest
-npm ci            # or: npm install
-npm run build     # writes assets/dist/ and copies fonts to assets/fonts/
+# 1. A MySQL/MariaDB database, then:
+cp app/config.sample.php app/config.php     # fill in the database, set 'env' => 'dev'
+# 2. Start PHP's built-in server
+tools/dev-server.sh                          # http://localhost:8080
+# 3. Open http://localhost:8080/admin/setup and create the first administrator.
+#    The starter content from the brief (services, page copy, portfolio drafts) is added then.
 ```
 
-Then upload the theme again (or just `assets/dist/`). File names of lazy chunks are hashed, and `main.css`/`main.js` get the theme version + file time as a cache-buster.
+Frontend changes: `cd frontend && npm ci && npm run build` (writes `public/assets/dist/`, which is committed).
 
-Regenerate phone rules (rarely needed):
+## Tests
 
 ```bash
-node tools/generate-phone-data.mjs && php tools/add-country-names.php
+php tests/php/run-tests.php --http        # integration tests (uses a throwaway database named vn_test)
+node tests/e2e/run-e2e.js                 # browser tests against http://localhost:8080
 ```
 
-## Run the tests (local or staging only, never production)
+See `docs/VERIFICATION-REPORT.md` for the latest results.
 
-```bash
-# 1) Integration tests: database, quote pipeline, phone rules, permissions, analytics math
-php tests/php/run-tests.php /path/to/wordpress http://staging-host
+## Deploy
 
-# 2) Browser end-to-end tests (needs Node + Playwright with Chromium)
-VN_ADMIN_USER=... VN_ADMIN_PASS=... node tests/e2e/run-e2e.js http://staging-host /path/to/wordpress
-```
+Step by step for Hostinger: **`docs/DEPLOYMENT-HOSTINGER.md`**. The ready-to-upload package is built by `tools/package.sh` and excludes `config.php`, logs, CVs, tests and Node files.
 
-Both suites create records tagged with a random marker and delete them at the end. The browser suite also deletes analytics events recorded while it ran, which is why it belongs on staging. Results of the last run: [docs/VERIFICATION-REPORT.md](docs/VERIFICATION-REPORT.md).
+## Rules this build follows
 
-### Local environment used for development
-
-`tools/setup-local.sh` documents the exact local setup (MariaDB + PHP built-in server + router `tools/router.php`). The local admin password used in development exists only on that throwaway machine and is not in any package.
-
-## Security and privacy notes
-
-- Credentials never live in code or packages. The SMTP password goes in `wp-config.php` as `define( 'VN_SMTP_PASSWORD', '...' );`.
-- Lead data (email, phone, message) is stored only in the `wp_vn_leads` table. It is never sent to analytics, GA4 or event payloads.
-- All forms use capability checks, nonces (admin) or a time-signed token + honeypot + same-origin + rate limits (public form). Output is escaped.
-- Pages are cache-safe: no per-visitor nonces in public HTML; the REST endpoints send `no-store`.
-
-## Other docs
-
-- [docs/OWNER-GUIDE.md](docs/OWNER-GUIDE.md): day-to-day editing, leads, analytics, roles
-- [docs/DESIGN-GUIDE.md](docs/DESIGN-GUIDE.md): tokens, type, components, motion
-- [docs/DATABASE-SCHEMA.md](docs/DATABASE-SCHEMA.md): tables, migrations, retention
-- [docs/LAUNCH-CHECKLIST.md](docs/LAUNCH-CHECKLIST.md): missing inputs and go-live steps
-- [docs/VERIFICATION-REPORT.md](docs/VERIFICATION-REPORT.md): what was tested and the results
+- Credentials live only in `app/config.php` on the server, never in Git or the package.
+- No invented testimonials, results, prices, contact details or office locations. Contact channels appear only after you enter them in Settings. Prices are hidden until you switch them on per service.
+- Case studies can't be published without the client's written permission, and results only show when marked as documented.
+- Emails, phones, names and messages never go into analytics events or GA4.
+- Client Portal / SaaS ideas and internal targets from the brief are not on the public site.

@@ -1,0 +1,32 @@
+# ViralNest — Apache / LiteSpeed (Hostinger)
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+	# Block hidden files (.git, .env …) except the ACME challenge used by SSL.
+	RewriteRule (^|/)\.(?!well-known/) - [F,L]
+	# Never serve the app folder if it was uploaded inside public_html.
+	RewriteRule ^app(/|$) - [F,L]
+	# Real files (built assets, images, uploads) are served directly.
+	RewriteCond %{REQUEST_FILENAME} -f
+	RewriteRule ^ - [L]
+	RewriteRule ^ index.php [L,QSA]
+</IfModule>
+
+<IfModule mod_headers.c>
+	Header always set X-Content-Type-Options "nosniff"
+	<FilesMatch "\.(js|css|woff2|webp|png|jpe?g|svg|avif|ico)$">
+		Header set Cache-Control "public, max-age=2592000"
+	</FilesMatch>
+</IfModule>
+
+<IfModule mod_mime.c>
+	AddType font/woff2 .woff2
+	AddType image/webp .webp
+	AddType image/avif .avif
+</IfModule>
+
+<FilesMatch "\.(sql|log|md|sh|ini|bak|zip)$">
+	Require all denied
+</FilesMatch>

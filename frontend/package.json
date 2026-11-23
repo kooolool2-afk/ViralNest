@@ -1,0 +1,16 @@
+{
+  "name": "viralnest-frontend",
+  "private": true,
+  "version": "2.0.0",
+  "description": "ViralNest frontend and dashboard build (Vite). Output goes to public/assets/dist and is committed, so the server never needs Node.js.",
+  "type": "module",
+  "scripts": {
+    "build": "vite build && node build/copy-fonts.mjs",
+    "watch": "vite build --watch"
+  },
+  "devDependencies": {
+    "@fontsource-variable/readex-pro": "5.3.0",
+    "@fontsource-variable/sora": "5.3.0",
+    "vite": "7.3.7"
+  }
+}

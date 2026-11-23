@@ -13,3 +13,16 @@ wp-config.php
 *.sql.gz
 *.log
 .DS_Store
+!app/migrations/*.sql
+
+# ViralNest 2.0 local config, runtime data and build output
+app/config.php
+/dist/
+app/storage/cv/**
+app/storage/logs/**
+app/storage/sessions/**
+app/storage/cache/**
+!app/storage/*/.gitkeep
+public/uploads/*
+!public/uploads/.htaccess
+!public/uploads/.gitkeep

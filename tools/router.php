@@ -1,17 +1,10 @@
 <?php
-// Router for PHP's built-in web server (local testing only): emulates Apache/LiteSpeed rewrites.
-$root = $_SERVER['DOCUMENT_ROOT'];
-$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-if ($path !== '/' && file_exists($root . $path) && !is_dir($root . $path)) {
-    return false;
-}
-if (is_dir($root . $path) && file_exists($root . rtrim($path, '/') . '/index.php')) {
-    $_SERVER['SCRIPT_NAME'] = rtrim($path, '/') . '/index.php';
-    require $root . rtrim($path, '/') . '/index.php';
-    return;
-}
-if (preg_match('#^/wp-admin/.+\.php$#', $path) || preg_match('#^/wp-[a-z\-]+\.php$#', $path)) {
-    return false;
+// Router for PHP's built-in web server (local development only). Mirrors public/.htaccess:
+// real files are served directly, everything else goes to public/index.php.
+$path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+$file = $_SERVER['DOCUMENT_ROOT'] . $path;
+if ( '/' !== $path && is_file( $file ) && ! str_ends_with( $file, '.php' ) && ! str_contains( $path, '/.' ) ) {
+	return false;
 }
 $_SERVER['SCRIPT_NAME'] = '/index.php';
-require $root . '/index.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/index.php';
