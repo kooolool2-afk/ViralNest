@@ -1,0 +1,15 @@
+# Dependencies and build caches
+node_modules/
+.vite/
+
+# Test output (screenshots, CSV exports, settings backups from local runs)
+tests/e2e/out/
+
+# Local environment and secrets: never commit
+.env
+.env.*
+wp-config.php
+*.sql
+*.sql.gz
+*.log
+.DS_Store

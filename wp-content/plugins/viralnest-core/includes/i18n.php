@@ -1,0 +1,162 @@
+<?php
+/**
+ * Interface strings (navigation chrome, form labels, validation, accessibility labels).
+ *
+ * Page copy lives in the editable Website Content store (content-store.php). These are the
+ * fixed interface strings; each key has an English and an Egyptian Arabic value.
+ * Developers: add a key in both languages. Values may contain %s placeholders for sprintf.
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+function vn_strings() {
+	static $strings = null;
+	if ( null !== $strings ) {
+		return $strings;
+	}
+	$strings = array(
+		// Chrome / accessibility.
+		'skip_link'            => array( 'Skip to main content', 'انتقل للمحتوى الأساسي' ),
+		'main_nav'             => array( 'Main navigation', 'القائمة الرئيسية' ),
+		'footer_nav'           => array( 'Footer navigation', 'روابط الفوتر' ),
+		'open_menu'            => array( 'Open menu', 'افتح القائمة' ),
+		'close_menu'           => array( 'Close menu', 'اقفل القائمة' ),
+		'lang_switch_label'    => array( 'Choose language', 'اختار اللغة' ),
+		'lang_switch_to'       => array( 'عربي', 'EN' ),
+		'lang_switch_to_full'  => array( 'اقرأ الصفحة بالعربي', 'Read this page in English' ),
+		'lang_unavailable'     => array( 'This page is not available in Arabic yet. You will go to the Arabic section page.', 'الصفحة دي لسه مش متاحة بالإنجليزي.' ),
+		'home_label'           => array( 'ViralNest home', 'الصفحة الرئيسية لـ ViralNest' ),
+		'social_links'         => array( 'ViralNest on social media', 'ViralNest على السوشيال ميديا' ),
+		'opens_new_tab'        => array( '(opens in a new tab)', '(بيفتح في تاب جديدة)' ),
+		'whatsapp_chat'        => array( 'Chat with us on WhatsApp', 'كلّمنا على واتساب' ),
+		'privacy_settings'     => array( 'Privacy settings', 'إعدادات الخصوصية' ),
+		'all_rights'           => array( 'All rights reserved.', 'جميع الحقوق محفوظة.' ),
+		'read_more'            => array( 'Learn more', 'اعرف أكتر' ),
+		'view_project'         => array( 'View project', 'شوف المشروع' ),
+		'view_service'         => array( 'Explore service', 'استكشف الخدمة' ),
+		'back_to_services'     => array( 'All services', 'كل الخدمات' ),
+		'back_to_work'         => array( 'All work', 'كل الشغل' ),
+		'facts_label'          => array( 'ViralNest at a glance', 'ViralNest في أرقام' ),
+		'fact_categories'      => array( 'Service categories', 'مجالات خدمة' ),
+		'fact_services'        => array( 'Services you can pick from', 'خدمة تقدر تختار منها' ),
+		'fact_models'          => array( 'Ways to work with us', 'طرق للشغل معانا' ),
+		'fact_steps'           => array( 'Steps from first call to growth', 'خطوات من أول مكالمة لحد النمو' ),
+		'marquee_label'        => array( 'What we do', 'بنعمل إيه' ),
+		'back_to_top'          => array( 'Back to top', 'ارجع لفوق' ),
+		'footer_big'           => array( 'Let’s make your brand spread.', 'يلا نخلّي براندك ينتشر.' ),
+		'cursor_view'          => array( 'View', 'شوف' ),
+		'breadcrumb'           => array( 'Breadcrumb', 'مسار الصفحة' ),
+		'included'             => array( 'What can be included', 'ممكن يشمل إيه' ),
+		'sub_services'         => array( 'Services you can select', 'خدمات تقدر تختارها' ),
+		'pricing'              => array( 'Pricing', 'الأسعار' ),
+		'price_from'           => array( 'Starting from %s', 'تبدأ من %s' ),
+		'price_fixed'          => array( '%s', '%s' ),
+		'price_default'        => array( 'Every proposal is based on your scope, timeline and goals. Tell us what you need and we will send a tailored quote.', 'كل عرض سعر بيتحدد حسب نطاق الشغل والمدة والأهداف. قولنا محتاج إيه وهنبعتلك عرض مناسب ليك.' ),
+		'ad_spend_note'        => array( 'Ad spend is paid separately from our management fees.', 'ميزانية الإعلانات منفصلة عن أتعاب الإدارة بتاعتنا.' ),
+		'request_service'      => array( 'Request a quote for this service', 'اطلب عرض سعر للخدمة دي' ),
+		'request_similar'      => array( 'Request a similar project', 'اطلب مشروع شبه ده' ),
+		// Portfolio.
+		'filter_work'          => array( 'Filter projects', 'فلتر المشاريع' ),
+		'filter_all'           => array( 'All', 'الكل' ),
+		'filter_by_service'    => array( 'By service', 'حسب الخدمة' ),
+		'filter_by_industry'   => array( 'By industry', 'حسب المجال' ),
+		'filter_results'       => array( '%s projects shown', 'عدد المشاريع المعروضة: %s' ),
+		'no_projects'          => array( 'Case studies are being prepared and will be published here once approved.', 'دراسات الحالة بتتجهز وهتتنشر هنا أول ما تتعتمد.' ),
+		'no_projects_filter'   => array( 'No projects match this filter yet.', 'مفيش مشاريع مطابقة للفلتر ده لسه.' ),
+		'project_client'       => array( 'Client', 'العميل' ),
+		'project_industry'     => array( 'Industry', 'المجال' ),
+		'project_scope'        => array( 'Scope', 'نطاق الشغل' ),
+		'project_services'     => array( 'Services delivered', 'الخدمات اللي اتقدمت' ),
+		'project_outcomes'     => array( 'Outcomes', 'النتايج' ),
+		'project_gallery'      => array( 'Project gallery', 'صور المشروع' ),
+		'overview'             => array( 'Overview', 'نظرة عامة' ),
+		// Contact.
+		'contact_whatsapp'     => array( 'WhatsApp', 'واتساب' ),
+		'contact_email'        => array( 'Email', 'الإيميل' ),
+		'contact_phone'        => array( 'Phone', 'التليفون' ),
+		'contact_social'       => array( 'Follow ViralNest', 'تابع ViralNest' ),
+		'contact_none'         => array( 'The fastest way to reach us is the quote form. We reply to every request.', 'أسرع طريقة توصلنا بيها هي فورم طلب عرض السعر، وبنرد على كل طلب.' ),
+		// Quote form.
+		'form_title'           => array( 'Tell us what you need', 'قولنا محتاج إيه' ),
+		'form_services'        => array( 'Which services do you need?', 'محتاج أنهي خدمات؟' ),
+		'form_services_hint'   => array( 'Select one or more. You can pick a whole service or specific parts of it.', 'اختار خدمة أو أكتر. تقدر تختار الخدمة كلها أو أجزاء معينة منها.' ),
+		'form_whole_service'   => array( 'Full %s', '%s بالكامل' ),
+		'form_selected_count'  => array( '%s selected', 'تم اختيار %s' ),
+		'form_email'           => array( 'Email address', 'الإيميل' ),
+		'form_phone'           => array( 'Phone number', 'رقم التليفون' ),
+		'form_country'         => array( 'Country code', 'كود الدولة' ),
+		'form_phone_hint'      => array( 'We may call or message you on this number about your request.', 'ممكن نكلمك أو نبعتلك رسالة على الرقم ده بخصوص طلبك.' ),
+		'form_name'            => array( 'Your name', 'اسمك' ),
+		'form_company'         => array( 'Business or brand name', 'اسم البيزنس أو البراند' ),
+		'form_website'         => array( 'Website or social page', 'الموقع أو صفحة السوشيال' ),
+		'form_message'         => array( 'Short project description', 'وصف مختصر للمشروع' ),
+		'form_message_hint'    => array( 'Goals, timeline, markets, or anything that helps us prepare. Max 2,000 characters.', 'الأهداف، المدة، الأسواق، أو أي حاجة تساعدنا نجهّز. بحد أقصى ٢٠٠٠ حرف.' ),
+		'form_optional'        => array( 'Optional', 'اختياري' ),
+		'form_required'        => array( 'Required', 'مطلوب' ),
+		'form_submit'          => array( 'Send request', 'ابعت الطلب' ),
+		'form_sending'         => array( 'Sending…', 'بنبعت…' ),
+		'form_privacy'         => array( 'We use your details only to respond to this request. See our <a href="%s">privacy policy</a>.', 'بنستخدم بياناتك بس عشان نرد على الطلب ده. اقرأ <a href="%s">سياسة الخصوصية</a>.' ),
+		'form_success_title'   => array( 'Request received. Thank you!', 'وصلنا طلبك. شكرًا!' ),
+		'form_success_text'    => array( 'Your reference is %s. Our team will review your request and get back to you soon.', 'رقم طلبك %s. فريقنا هيراجع الطلب ويرجعلك قريب.' ),
+		'form_duplicate_text'  => array( 'We already received this request (reference %s), so we did not create a duplicate. We will be in touch soon.', 'الطلب ده وصلنا قبل كده (رقم %s)، فمعملناش نسخة مكررة. هنتواصل معاك قريب.' ),
+		'form_new_request'     => array( 'Send another request', 'ابعت طلب تاني' ),
+		'form_error_summary'   => array( 'Please fix the highlighted fields.', 'من فضلك صحّح الخانات المحددة.' ),
+		'form_network_error'   => array( 'We could not reach the server. Your answers are still here. Please check your connection and try again.', 'مقدرناش نوصل للسيرفر. إجاباتك لسه موجودة. اتأكد من النت وجرّب تاني.' ),
+		'form_rate_limited'    => array( 'Too many requests from this connection. Please wait a few minutes and try again.', 'في طلبات كتير من نفس الاتصال. استنى كام دقيقة وجرّب تاني.' ),
+		'form_server_error'    => array( 'Something went wrong on our side and your request was not saved. Please try again.', 'حصلت مشكلة عندنا والطلب متحفظش. جرّب تاني من فضلك.' ),
+		'form_services_changed' => array( 'Some selected services are no longer available. We refreshed the list. Please review your selection.', 'في خدمات اخترتها مبقتش متاحة. حدّثنا القايمة، راجع اختيارك من فضلك.' ),
+		'form_no_services'     => array( 'Our service list is being updated. Please contact us directly in the meantime.', 'قايمة الخدمات بتتحدث دلوقتي. تواصل معانا مباشرة لحد ما تخلص.' ),
+		'err_services'         => array( 'Select at least one service.', 'اختار خدمة واحدة على الأقل.' ),
+		'err_services_invalid' => array( 'One or more selected services are no longer available.', 'خدمة أو أكتر من اللي اخترتها مبقتش متاحة.' ),
+		'err_email_required'   => array( 'Enter your email address.', 'اكتب الإيميل بتاعك.' ),
+		'err_email_invalid'    => array( 'Enter a valid email address, like name@example.com.', 'اكتب إيميل صحيح، زي name@example.com.' ),
+		'err_phone_required'   => array( 'Enter your phone number.', 'اكتب رقم التليفون.' ),
+		'err_phone_invalid'    => array( 'Enter a valid phone number for the selected country.', 'اكتب رقم صحيح للدولة اللي اخترتها.' ),
+		'err_country'          => array( 'Choose a country code.', 'اختار كود الدولة.' ),
+		'err_website'          => array( 'Enter a valid web address, like example.com.', 'اكتب عنوان موقع صحيح، زي example.com.' ),
+		'err_too_long'         => array( 'This is too long. Maximum %s characters.', 'ده طويل زيادة. الحد الأقصى %s حرف.' ),
+		// Consent.
+		'consent_title'        => array( 'Your privacy', 'خصوصيتك' ),
+		'consent_text'         => array( 'We use first-party analytics to understand which pages help visitors. Optional analytics run only if you allow them. Quote requests work either way.', 'بنستخدم تحليلات خاصة بينا عشان نفهم أنهي صفحات بتفيد الزوار. التحليلات الاختيارية بتشتغل بس لو وافقت. وطلب عرض السعر شغال في الحالتين.' ),
+		'consent_text_notice'  => array( 'We use privacy-friendly first-party analytics with no advertising cookies. You can turn it off any time. Optional third-party analytics run only if you allow them.', 'بنستخدم تحليلات خاصة بينا من غير كوكيز إعلانية، وتقدر تقفلها في أي وقت. التحليلات الخارجية الاختيارية بتشتغل بس لو وافقت.' ),
+		'consent_accept'       => array( 'Allow analytics', 'وافق على التحليلات' ),
+		'consent_decline'      => array( 'Essential only', 'الأساسي بس' ),
+		'consent_more'         => array( 'Privacy policy', 'سياسة الخصوصية' ),
+		// Errors / fallbacks.
+		'not_found_title'      => array( 'This page went viral somewhere else.', 'الصفحة دي انتشرت في حتة تانية.' ),
+		'untranslated_title'   => array( 'This page is not available in Arabic yet', 'الصفحة دي لسه مش متاحة بالعربي' ),
+		'untranslated_text'    => array( 'You can read the English version, or browse the Arabic pages.', 'تقدر تقرا النسخة الإنجليزي، أو تتصفح الصفحات العربي.' ),
+		'read_english'         => array( 'Read in English', 'اقرأ بالإنجليزي' ),
+		'go_home'              => array( 'Go to the homepage', 'روح للصفحة الرئيسية' ),
+		'preview_banner'       => array( 'Preview of unpublished changes. Visitors do not see this yet.', 'دي معاينة لتعديلات لسه متنشرتش. الزوار مش شايفينها.' ),
+		'step'                 => array( 'Step %s', 'خطوة %s' ),
+	);
+	return $strings;
+}
+
+/**
+ * Translate an interface string.
+ *
+ * @param string $key  String key.
+ * @param mixed  ...$args sprintf arguments.
+ */
+function vn_t( $key, ...$args ) {
+	$strings = vn_strings();
+	$idx     = 'ar' === vn_lang() ? 1 : 0;
+	$value   = $strings[ $key ][ $idx ] ?? $key;
+	return $args ? vsprintf( $value, $args ) : $value;
+}
+
+/** Translate an interface string in a specific language. */
+function vn_t_lang( $lang, $key, ...$args ) {
+	$prev = vn_lang();
+	vn_set_lang( $lang );
+	$out = vn_t( $key, ...$args );
+	vn_set_lang( $prev );
+	return $out;
+}
+
+/** Arabic-Indic digits are not forced; Western digits stay readable for phone numbers and prices. */
+function vn_number( $n ) {
+	return number_format_i18n( $n );
+}

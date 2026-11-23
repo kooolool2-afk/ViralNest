@@ -1,0 +1,16 @@
+{
+  "name": "viralnest-theme",
+  "private": true,
+  "version": "1.2.0",
+  "description": "ViralNest WordPress theme frontend build (Vite). Output is committed to assets/dist so the server never needs Node.js.",
+  "type": "module",
+  "scripts": {
+    "build": "vite build && node build/copy-fonts.mjs",
+    "watch": "vite build --watch"
+  },
+  "devDependencies": {
+    "@fontsource-variable/readex-pro": "5.3.0",
+    "@fontsource-variable/sora": "5.3.0",
+    "vite": "7.3.7"
+  }
+}
