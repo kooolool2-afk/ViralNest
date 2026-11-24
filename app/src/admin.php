@@ -384,6 +384,9 @@ function vn_admin_applications( int $id, string $sub, bool $post ): void {
 		if ( 'cv' === $sub ) {
 			vn_admin_send_cv( $app );
 		}
+		if ( 'portfolio' === $sub ) {
+			vn_admin_send_portfolio( $app, ! empty( $_GET['view'] ) );
+		}
 		if ( $post ) {
 			$do = (string) ( $_POST['do'] ?? '' );
 			if ( 'status' === $do && vn_can( 'apps.edit' ) && isset( VN_APP_STATUSES[ $_POST['status'] ?? '' ] ) ) {
@@ -405,7 +408,7 @@ function vn_admin_applications( int $id, string $sub, bool $post ): void {
 			if ( 'delete' === $do && vn_can( 'apps.delete' ) ) {
 				vn_delete_applications_where( 'id = ?', array( $id ) );
 				vn_audit( 'app_delete', 'application:' . $id );
-				vn_admin_back( '/admin/applications', 'Application ' . vn_app_ref( $id ) . ' deleted, with its CV.' );
+				vn_admin_back( '/admin/applications', 'Application ' . vn_app_ref( $id ) . ' deleted, with its files.' );
 			}
 			vn_admin_back( "/admin/applications/$id" );
 		}
@@ -463,13 +466,32 @@ function vn_admin_app_filters(): array {
 	if ( 'yes' === ( $f['cv'] ?? '' ) ) {
 		$w[] = "a.cv_path <> ''";
 	}
+	if ( 'yes' === ( $f['pf'] ?? '' ) ) {
+		$w[] = "a.portfolio_path <> ''";
+	}
+	if ( isset( vn_rate_types()[ $f['rate_type'] ?? '' ] ) ) {
+		$w[] = 'a.rate_type = ?';
+		$p[] = $f['rate_type'];
+	}
+	if ( in_array( $f['currency'] ?? '', vn_currencies(), true ) ) {
+		$w[] = 'a.rate_currency = ?';
+		$p[] = $f['currency'];
+	}
+	if ( null !== ( $max = vn_parse_amount( (string) ( $f['rate_max'] ?? '' ) ) ) ) {
+		$w[] = 'a.rate_amount IS NOT NULL AND a.rate_amount <= ?';
+		$p[] = $max;
+	}
+	if ( isset( vn_contact_prefs()[ $f['contact'] ?? '' ] ) ) {
+		$w[] = 'a.contact_pref = ?';
+		$p[] = $f['contact'];
+	}
 	if ( preg_match( '/^\s*FL-?0*(\d+)\s*$/i', (string) ( $f['q'] ?? '' ), $m ) ) {
 		$w[] = 'a.id = ?';
 		$p[] = (int) $m[1];
 	} elseif ( '' !== trim( (string) ( $f['q'] ?? '' ) ) ) {
 		$q   = '%' . str_replace( array( '%', '_' ), array( '\%', '\_' ), trim( (string) $f['q'] ) ) . '%';
-		$w[] = '(a.email LIKE ? OR a.name LIKE ? OR a.location LIKE ? OR a.about LIKE ? OR a.specialty_other LIKE ?)';
-		array_push( $p, $q, $q, $q, $q, $q );
+		$w[] = '(a.email LIKE ? OR a.name LIKE ? OR a.location LIKE ? OR a.about LIKE ? OR a.specialty_other LIKE ? OR a.social_links LIKE ? OR a.portfolio_links LIKE ? OR a.phone_e164 LIKE ?)';
+		array_push( $p, $q, $q, $q, $q, $q, $q, $q, $q );
 	}
 	return array( implode( ' AND ', $w ), $p );
 }
@@ -482,18 +504,23 @@ function vn_admin_export_apps(): never {
 	header( 'Content-Disposition: attachment; filename="viralnest-freelancers-' . gmdate( 'Y-m-d' ) . '.csv"' );
 	$out = fopen( 'php://output', 'w' );
 	fwrite( $out, "\xEF\xBB\xBF" );
-	fputcsv( $out, array( 'Reference', 'Date (Cairo)', 'Status', 'Name', 'Email', 'Phone', 'Specialty', 'Location', 'Experience', 'Availability', 'Languages', 'Rate', 'Portfolio links', 'About', 'CV on file' ) );
+	$nets = vn_social_networks();
+	fputcsv( $out, array_merge( array( 'Reference', 'Date (Cairo)', 'Status', 'Name', 'Email', 'Phone', 'Preferred contact' ), array_map( fn( $n ) => $n[0], $nets ), array( 'Specialty', 'Location', 'Experience', 'Availability', 'Languages', 'Rate type', 'Price', 'Currency', 'Rate (text)', 'Portfolio links', 'How they can help / services', 'Portfolio file on file', 'CV on file' ) ) );
 	foreach ( $rows as $r ) {
 		fputcsv(
 			$out,
 			array_map(
 				'vn_csv_cell',
-				array(
-					vn_app_ref( $r['id'] ), vn_local_time( $r['created_at'], 'Y-m-d H:i' ), VN_APP_STATUSES[ $r['status'] ] ?? $r['status'], $r['name'], $r['email'], $r['phone_e164'],
-					vn_specialty_label( $r['specialty'] ) . ( $r['specialty_other'] ? ' (' . $r['specialty_other'] . ')' : '' ), $r['location'],
-					isset( vn_experience_options()[ $r['experience_years'] ] ) ? vn_t_lang( 'en', vn_experience_options()[ $r['experience_years'] ] ) : '',
-					isset( vn_availability_options()[ $r['availability'] ] ) ? vn_t_lang( 'en', vn_availability_options()[ $r['availability'] ] ) : '',
-					$r['languages'], $r['rate'], str_replace( "\n", ' ', (string) $r['portfolio_links'] ), $r['about'], $r['cv_path'] ? 'yes' : 'no',
+				array_merge(
+					array( vn_app_ref( $r['id'] ), vn_local_time( $r['created_at'], 'Y-m-d H:i' ), VN_APP_STATUSES[ $r['status'] ] ?? $r['status'], $r['name'], $r['email'], $r['phone_e164'], $r['contact_pref'] ? vn_t_lang( 'en', vn_contact_prefs()[ $r['contact_pref'] ] ) : '' ),
+					array_map( fn( $k ) => vn_app_socials( $r )[ $k ] ?? '', array_keys( $nets ) ),
+					array(
+						vn_specialty_label( $r['specialty'] ) . ( $r['specialty_other'] ? ' (' . $r['specialty_other'] . ')' : '' ), $r['location'],
+						isset( vn_experience_options()[ $r['experience_years'] ] ) ? vn_t_lang( 'en', vn_experience_options()[ $r['experience_years'] ] ) : '',
+						isset( vn_availability_options()[ $r['availability'] ] ) ? vn_t_lang( 'en', vn_availability_options()[ $r['availability'] ] ) : '',
+						$r['languages'], $r['rate_type'] ? vn_t_lang( 'en', vn_rate_types()[ $r['rate_type'] ] ?? '' ) : '', null === $r['rate_amount'] ? '' : (string) (float) $r['rate_amount'], $r['rate_currency'], vn_rate_label( $r ),
+						str_replace( "\n", ' ', (string) $r['portfolio_links'] ), $r['about'], $r['portfolio_path'] ? 'yes' : 'no', $r['cv_path'] ? 'yes' : 'no',
+					)
 				)
 			)
 		);
@@ -512,6 +539,25 @@ function vn_admin_send_cv( array $app ): never {
 	header( 'Content-Disposition: attachment; filename="' . vn_app_ref( $app['id'] ) . '-cv.pdf"' );
 	header( 'Content-Length: ' . filesize( $file ) );
 	header( 'X-Content-Type-Options: nosniff' );
+	readfile( $file );
+	exit;
+}
+
+function vn_admin_send_portfolio( array $app, bool $inline ): never {
+	$path = (string) $app['portfolio_path'];
+	$file = VN_STORAGE . '/portfolio/' . $path;
+	if ( ! preg_match( '#^\d{4}/\d{2}/[a-f0-9]{32}\.(pdf|jpg|png|webp)$#', $path, $m ) || ! is_file( $file ) ) {
+		vn_admin_back( '/admin/applications/' . $app['id'], 'The portfolio file is missing.', 'error' );
+	}
+	$types = array_flip( VN_PORTFOLIO_TYPES );
+	$image = 'pdf' !== $m[1];
+	vn_audit( 'portfolio_download', 'application:' . $app['id'] );
+	header( 'Content-Type: ' . $types[ $m[1] ] );
+	header( 'Content-Disposition: ' . ( $inline && $image ? 'inline' : 'attachment' ) . '; filename="' . vn_app_ref( $app['id'] ) . '-portfolio.' . $m[1] . '"' );
+	header( 'Content-Length: ' . filesize( $file ) );
+	header( 'X-Content-Type-Options: nosniff' );
+	header( "Content-Security-Policy: default-src 'none'; sandbox" );
+	header( 'Cache-Control: private, no-store' );
 	readfile( $file );
 	exit;
 }

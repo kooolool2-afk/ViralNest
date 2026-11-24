@@ -46,7 +46,7 @@ echo vn_page_hero( vn_c( 'contact.title' ), vn_c( 'contact.intro' ), vn_t( 'eyeb
 	<div class="vn-wrap">
 		<div class="vn-band" data-reveal>
 			<div><p class="vn-eyebrow"><?= e( vn_c( 'careers.eyebrow' ) ) ?></p><h2 class="vn-h3"><?= e( vn_c( 'careers.title' ) ) ?></h2></div>
-			<?= vn_btn( vn_t( 'apply_now' ), vn_url( 'careers' ), 'ghost' ) ?>
+			<?= vn_btn( vn_t( 'apply_now' ), vn_url( 'apply' ), 'ghost' ) ?>
 		</div>
 	</div>
 </section>

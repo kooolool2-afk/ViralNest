@@ -19,6 +19,7 @@ wp-config.php
 app/config.php
 /dist/
 app/storage/cv/**
+app/storage/portfolio/**
 app/storage/logs/**
 app/storage/sessions/**
 app/storage/cache/**

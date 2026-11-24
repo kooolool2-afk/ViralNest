@@ -1,6 +1,6 @@
 # ViralNest verification report
 
-**Date:** 23 November 2026 · **Build:** ViralNest 2.1.0 (custom PHP + MySQL, no WordPress)
+**Date:** 23 November 2026 · **Build:** ViralNest 2.2.0 (custom PHP + MySQL, no WordPress)
 
 This report lists only checks that were actually run, with their results. Checks that need the real hosting, real accounts or a human decision are listed under **Pending** below. Those were not run and are not claimed here.
 
@@ -19,8 +19,8 @@ This report lists only checks that were actually run, with their results. Checks
 | Suite | Command | Result |
 |---|---|---|
 | PHP syntax lint | `php -l` on every PHP file | **0 errors** |
-| Integration tests (real database `vn_test`, plus HTTP checks) | `php tests/php/run-tests.php --http` | **105 passed, 0 failed** |
-| Browser end-to-end tests | `node tests/e2e/run-e2e.js` | **25 passed, 0 failed** |
+| Integration tests (real database `vn_test`, plus HTTP checks) | `php tests/php/run-tests.php --http` | **118 passed, 0 failed** |
+| Browser end-to-end tests | `node tests/e2e/run-e2e.js` | **26 passed, 0 failed** |
 | Visual review | 50 screenshots in `design/screenshots/`, reviewed by eye | Done. The issues found were fixed (see below). |
 
 Both suites were run again on the final code after the last fixes.
@@ -44,6 +44,9 @@ Both suites were run again on the final code after the last fixes.
 - **Work with us form:**
   - Validation works, including the "Other" specialty.
   - The CV must be a PDF of at most 5 MB, checked by its content and not only its extension.
+  - Portfolio files (PDF, JPG, PNG, WebP up to 8 MB) are checked by content; a renamed non-image is rejected. A link or a portfolio file is required.
+  - Rate type, price (Arabic digits accepted) and currency, social accounts (handles become profile links) and preferred contact are validated and shown in Studio, with filters and CSV columns.
+  - The no-JavaScript fallback keeps entered values, including social accounts, when there are errors.
   - CVs are stored outside the public folder and can be downloaded only through Studio.
 - **Privacy:**
   - Analytics events never contain names, emails, phones or messages.

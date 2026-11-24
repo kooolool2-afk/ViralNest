@@ -192,8 +192,14 @@ You join our specialist network", "قدّم وابعت نماذج من شغلك
 مكالمة قصيرة نتعرف فيها عليك
 تاسك تجريبي مدفوع لما ييجي مشروع مناسب
 تنضم لشبكة المتخصصين بتاعتنا" ),
+				'cta_title'    => array( 'text', 'Apply band: heading', 'Ready to join our specialist network?', 'جاهز تنضم لشبكة المتخصصين بتاعتنا؟' ),
+				'cta_text'     => array( 'textarea', 'Apply band: text', 'Fill in one short application: your details, your social accounts, your rate and your work. We review every application.', 'املا طلب واحد قصير: بياناتك، وحسابات السوشيال، وسعرك، وشغلك. وبنراجع كل الطلبات.' ),
+				'apply_crumb'  => array( 'text', 'Application page: breadcrumb', 'Apply', 'قدّم' ),
+				'apply_eyebrow'=> array( 'text', 'Application page: small label', 'Freelancer application', 'طلب انضمام للفريلانسرز' ),
+				'apply_title'  => array( 'text', 'Application page: headline', 'Apply to work with ViralNest', 'قدّم عشان تشتغل مع ViralNest' ),
+				'apply_intro'  => array( 'textarea', 'Application page: intro', 'Tell us who you are, how to reach you, what you charge and what you can do. It takes about five minutes.', 'قولنا إنت مين، ونوصلك إزاي، وبتاخد كام، وتقدر تعمل إيه. هياخد حوالي ٥ دقايق.' ),
 				'form_title'   => array( 'text', 'Form: heading', 'Apply to join our specialist network', 'قدّم وانضم لشبكة المتخصصين' ),
-				'form_text'    => array( 'textarea', 'Form: intro', 'It takes about three minutes. Links to your best work matter more than a CV.', 'هتاخد حوالي ٣ دقايق. لينكات أحسن شغلك أهم من السي ڤي.' ),
+				'form_text'    => array( 'textarea', 'Form: intro', 'Fields marked Required are needed. Links to your best work, or a portfolio file, matter more than a CV.', 'الخانات المكتوب جنبها مطلوب لازم تتملي. لينكات أحسن شغلك أو ملف البورتفوليو أهم من السي ڤي.' ),
 				'success_title'=> array( 'text', 'Success: heading', 'Application received', 'وصلنا طلبك' ),
 				'success_text' => array( 'textarea', 'Success: text', 'Thanks for applying. We review every application and will contact you when a project matches your skills.', 'شكرًا إنك قدّمت. بنراجع كل الطلبات وهنتواصل معاك لما ييجي مشروع مناسب لمهاراتك.' ),
 			),
@@ -243,6 +249,8 @@ You join our specialist network", "قدّم وابعت نماذج من شغلك
 				'quote_title'      => array( 'text', 'Quote: title', 'Request a Quote | ViralNest', 'اطلب عرض سعر | ViralNest' ),
 				'quote_desc'       => array( 'textarea', 'Quote: description', 'Tell us which services you need and get a written proposal based on your scope and market.', 'قولنا محتاج أنهي خدمات وخد عرض مكتوب مبني على نطاق شغلك والسوق بتاعك.' ),
 				'careers_title'    => array( 'text', 'Work with us: title', 'Work with us | Freelancers | ViralNest', 'اشتغل معانا | فريلانسرز | ViralNest' ),
+				'apply_title'      => array( 'text', 'Freelancer application: title', 'Apply as a freelancer | ViralNest', 'قدّم كفريلانسر | ViralNest' ),
+				'apply_desc'       => array( 'textarea', 'Freelancer application: description', 'Apply to join the ViralNest specialist network: share your contact details, social accounts, rate and portfolio.', 'قدّم وانضم لشبكة متخصصين ViralNest: ابعت بيانات التواصل وحسابات السوشيال وسعرك والبورتفوليو.' ),
 				'careers_desc'     => array( 'textarea', 'Work with us: description', 'Designers, video editors, content creators, copywriters, SEO specialists, developers and media buyers: apply to join the ViralNest specialist network.', 'ديزاينرز، مونتيرين، صناع محتوى، كوبي رايترز، متخصصين SEO، مطورين وميديا بايرز: قدّم وانضم لشبكة متخصصين ViralNest.' ),
 				'privacy_title'    => array( 'text', 'Privacy: title', 'Privacy policy | ViralNest', 'سياسة الخصوصية | ViralNest' ),
 				'privacy_desc'     => array( 'textarea', 'Privacy: description', 'How ViralNest collects, uses and protects information submitted through this website.', 'إزاي ViralNest بتجمع وبتستخدم وبتحمي البيانات اللي بتتبعت من خلال الموقع.' ),
@@ -399,6 +407,9 @@ function vn_page_ar_ready( $page ) {
 	if ( null === $store || ! empty( $GLOBALS['vn_content_dirty_ar'] ) ) {
 		$store = vn_content_store();
 		unset( $GLOBALS['vn_content_dirty_ar'] );
+	}
+	if ( 'apply' === $page ) {
+		$page = 'careers'; // The application page follows the Work with us page.
 	}
 	if ( empty( $store['ar_ready'][ $page ] ) ) {
 		return false;

@@ -18,6 +18,7 @@ function vn_routes(): array {
 		'services'  => 'services/',
 		'portfolio' => 'work/',
 		'careers'   => 'work-with-us/',
+		'apply'     => 'work-with-us/apply/',
 		'contact'   => 'contact/',
 		'quote'     => 'request-a-quote/',
 		'privacy'   => 'privacy-policy/',

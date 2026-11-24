@@ -24,7 +24,7 @@ hPanel > Domains > Subdomains > create `new.viralnesteg.com`. Hostinger creates 
 hPanel > Advanced > **PHP Configuration**:
 - PHP version **8.2 or 8.3**.
 - Extensions on: `pdo_mysql`, `mbstring`, `fileinfo`, `gd`, `openssl` (all on by default).
-- PHP options: `upload_max_filesize` **10M** and `post_max_size` **12M** (for image uploads and 5 MB CVs).
+- PHP options: `upload_max_filesize` **10M** and `post_max_size` **16M** (image uploads, and freelancer applications that can carry an 8 MB portfolio file plus a 5 MB CV).
 
 ## 2. Upload the files
 

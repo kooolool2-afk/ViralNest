@@ -5,6 +5,9 @@
  */
 $wa    = preg_replace( '/\D/', '', (string) $app['phone_e164'] );
 $langs = array_filter( explode( ',', (string) $app['languages'] ) );
+$socials = vn_app_socials( $app );
+$pf_img  = $app['portfolio_path'] && str_starts_with( (string) $app['portfolio_mime'], 'image/' );
+$pref    = $app['contact_pref'] ? vn_t_lang( 'en', vn_contact_prefs()[ $app['contact_pref'] ] ?? '' ) : '';
 ?>
 <div class="a-detail">
 	<div class="a-detail__main">
@@ -20,26 +23,50 @@ $langs = array_filter( explode( ',', (string) $app['languages'] ) );
 			<div class="a-actions-row">
 				<a class="a-btn a-btn--primary" href="mailto:<?= ea( $app['email'] ) ?>?subject=<?= rawurlencode( 'ViralNest: your application ' . vn_app_ref( $app['id'] ) ) ?>"><?= vn_admin_icon( 'mail' ) ?><span>Email</span></a>
 				<a class="a-btn a-btn--ghost" href="https://wa.me/<?= e( $wa ) ?>" target="_blank" rel="noopener"><span>WhatsApp</span></a>
+				<?php if ( $app['portfolio_path'] ) : ?><a class="a-btn a-btn--ghost" href="/admin/applications/<?= (int) $app['id'] ?>/portfolio"><?= vn_admin_icon( 'download' ) ?><span>Portfolio file (<?= e( number_format( $app['portfolio_bytes'] / 1048576, 1 ) ) ?> MB)</span></a><?php endif; ?>
 				<?php if ( $app['cv_path'] ) : ?><a class="a-btn a-btn--ghost" href="/admin/applications/<?= (int) $app['id'] ?>/cv"><?= vn_admin_icon( 'download' ) ?><span>Download CV (<?= e( number_format( $app['cv_bytes'] / 1048576, 1 ) ) ?> MB)</span></a><?php endif; ?>
+			</div>
+			<?php if ( $pref ) : ?><p class="a-small a-muted">Prefers to be contacted by <strong><?= e( $pref ) ?></strong>.</p><?php endif; ?>
+			<div class="a-rate">
+				<span class="a-rate__label">Rate</span>
+				<strong class="a-rate__value"><?= e( vn_rate_label( $app ) ?: '—' ) ?></strong>
+				<?php if ( $app['rate_type'] ) : ?><span class="a-badge a-badge--muted"><?= e( vn_t_lang( 'en', vn_rate_types()[ $app['rate_type'] ] ?? '' ) ) ?></span><?php endif; ?>
 			</div>
 			<dl class="a-dl">
 				<div><dt>Email</dt><dd dir="ltr"><?= e( $app['email'] ) ?></dd></div>
-				<div><dt>Phone</dt><dd dir="ltr"><?= e( $app['phone_e164'] ) ?></dd></div>
+				<div><dt>Phone / WhatsApp</dt><dd dir="ltr"><?= e( $app['phone_e164'] ) ?></dd></div>
+				<div><dt>Preferred contact</dt><dd><?= e( $pref ?: '—' ) ?></dd></div>
 				<div><dt>Location</dt><dd><?= e( $app['location'] ?: '—' ) ?></dd></div>
 				<div><dt>Experience</dt><dd><?= e( isset( vn_experience_options()[ $app['experience_years'] ] ) ? vn_t_lang( 'en', vn_experience_options()[ $app['experience_years'] ] ) : '—' ) ?></dd></div>
 				<div><dt>Availability</dt><dd><?= e( isset( vn_availability_options()[ $app['availability'] ] ) ? vn_t_lang( 'en', vn_availability_options()[ $app['availability'] ] ) : '—' ) ?></dd></div>
 				<div><dt>Languages</dt><dd><?= e( implode( ', ', array_map( fn( $l ) => vn_t_lang( 'en', vn_work_languages()[ $l ] ?? 'lang_other' ), $langs ) ) ?: '—' ) ?></dd></div>
-				<div><dt>Rate expectations</dt><dd><?= e( $app['rate'] ?: '—' ) ?></dd></div>
 				<div><dt>Applied in</dt><dd><?= 'ar' === $app['lang'] ? 'Arabic' : 'English' ?></dd></div>
 			</dl>
-			<h3 class="a-h3">Portfolio</h3>
-			<ul class="a-links">
-				<?php foreach ( vn_lines( $app['portfolio_links'] ) as $link ) : ?>
-					<li><a href="<?= eu( $link ) ?>" target="_blank" rel="noopener nofollow"><?= vn_admin_icon( 'external' ) ?><span><?= e( $link ) ?></span></a></li>
-				<?php endforeach; ?>
-			</ul>
-			<h3 class="a-h3">About</h3>
+			<h3 class="a-h3">How they can help / services they provide</h3>
 			<div class="a-quote"><?= $app['about'] ? nl2br( e( $app['about'] ) ) : '<span class="a-muted">Nothing added.</span>' ?></div>
+			<h3 class="a-h3">Social media accounts</h3>
+			<?php if ( $socials ) : ?>
+				<ul class="a-socials">
+					<?php foreach ( $socials as $net => $url ) : ?>
+						<li><a href="<?= eu( $url ) ?>" target="_blank" rel="noopener nofollow"><?= vn_icon( $net, 'a-ico' ) ?><span><strong><?= e( vn_social_networks()[ $net ][0] ) ?></strong><small dir="ltr"><?= e( preg_replace( '#^https?://(www\.)?#', '', $url ) ) ?></small></span></a></li>
+					<?php endforeach; ?>
+				</ul>
+			<?php else : ?><p class="a-muted">None added.</p><?php endif; ?>
+			<h3 class="a-h3">Portfolio</h3>
+			<?php if ( $app['portfolio_links'] ) : ?>
+				<ul class="a-links">
+					<?php foreach ( vn_lines( $app['portfolio_links'] ) as $link ) : ?>
+						<li><a href="<?= eu( $link ) ?>" target="_blank" rel="noopener nofollow"><?= vn_admin_icon( 'external' ) ?><span><?= e( $link ) ?></span></a></li>
+					<?php endforeach; ?>
+				</ul>
+			<?php endif; ?>
+			<?php if ( $app['portfolio_path'] ) : ?>
+				<div class="a-filecard">
+					<?php if ( $pf_img ) : ?><a href="/admin/applications/<?= (int) $app['id'] ?>/portfolio?view=1" target="_blank" rel="noopener"><img src="/admin/applications/<?= (int) $app['id'] ?>/portfolio?view=1" alt="Portfolio image from <?= ea( $app['name'] ) ?>" loading="lazy"></a><?php endif; ?>
+					<p><?= vn_admin_icon( 'file' ) ?> <span><?= e( $app['portfolio_name'] ) ?> · <?= e( number_format( $app['portfolio_bytes'] / 1048576, 1 ) ) ?> MB</span> <a href="/admin/applications/<?= (int) $app['id'] ?>/portfolio">Download</a></p>
+				</div>
+			<?php endif; ?>
+			<?php if ( ! $app['portfolio_links'] && ! $app['portfolio_path'] ) : ?><p class="a-muted">No portfolio added.</p><?php endif; ?>
 		</section>
 		<section class="a-card">
 			<header class="a-card__head"><h2>Notes and history</h2></header>
@@ -76,7 +103,7 @@ $langs = array_filter( explode( ',', (string) $app['languages'] ) );
 		</section>
 		<?php if ( vn_can( 'apps.delete' ) ) : ?>
 			<form method="post" class="a-danger"><?= vn_csrf_field() ?><input type="hidden" name="do" value="delete">
-				<button class="a-btn a-btn--danger a-btn--sm" type="submit" data-a-confirm="Delete this application and its CV permanently?"><?= vn_admin_icon( 'trash' ) ?><span>Delete application</span></button>
+				<button class="a-btn a-btn--danger a-btn--sm" type="submit" data-a-confirm="Delete this application and its files permanently?"><?= vn_admin_icon( 'trash' ) ?><span>Delete application</span></button>
 			</form>
 		<?php endif; ?>
 	</aside>

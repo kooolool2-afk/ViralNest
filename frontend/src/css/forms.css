@@ -86,3 +86,21 @@ fieldset.vn-field > legend { margin-bottom: 12px; }
 .vn-success p { max-width: 52ch; color: var(--vn-muted); }
 .vn-success__icon { display: grid; place-items: center; width: 84px; height: 84px; border-radius: 50%; background: var(--vn-mint); color: var(--vn-on-accent); box-shadow: 0 0 0 12px rgb(var(--vn-mint-rgb) / .14), 0 0 0 26px rgb(var(--vn-mint-rgb) / .06); animation: vn-pop .7s var(--ease) both .1s; }
 .vn-success__icon .vn-icon { width: 40px; height: 40px; stroke-width: 2.4; }
+
+/* Freelancer application: numbered sections, social accounts, rate */
+.vn-form__section { display: grid; gap: 22px; padding-top: 30px; border-top: 1px solid var(--line); }
+.vn-form__step { display: flex; align-items: center; gap: 14px; font-size: var(--fs-h4); font-weight: 600; letter-spacing: -.01em; }
+.vn-form__step-num { display: grid; place-items: center; width: 36px; height: 36px; flex: none; border-radius: 50%; background: var(--grad); color: #fff; font-size: var(--fs-sm); font-weight: 700; box-shadow: var(--sh-glow); }
+.vn-socials > .vn-hint { margin: -2px 0 12px; }
+.vn-socials__grid { display: grid; gap: 10px; }
+@media (min-width: 720px) { .vn-socials__grid { grid-template-columns: 1fr 1fr; } }
+.vn-social { display: grid; grid-template-columns: minmax(118px, 38%) 1fr; align-items: center; border-radius: 12px; border: 1px solid var(--line-2); background: var(--vn-bg); transition: border-color .2s, box-shadow .2s; }
+.vn-social:focus-within { border-color: var(--vn-cyan); box-shadow: 0 0 0 3px rgb(var(--vn-cyan-rgb) / .2); }
+.vn-social__label { display: flex; align-items: center; gap: 10px; height: 100%; padding: 0 14px; border-inline-end: 1px solid var(--line); font-size: var(--fs-sm); color: var(--vn-muted); }
+.vn-social__label .vn-icon { width: 18px; height: 18px; color: var(--vn-cyan); flex: none; }
+.vn-form .vn-social input { min-height: 50px; border: 0; background: transparent; box-shadow: none; border-radius: 0 12px 12px 0; }
+[dir="rtl"] .vn-form .vn-social input { border-radius: 12px 0 0 12px; text-align: left; }
+.vn-form .vn-social input:focus { outline: none; box-shadow: none; }
+.vn-social:has(input[aria-invalid="true"]) { border-color: var(--danger); }
+.vn-social .vn-error { grid-column: 1 / -1; padding: 0 14px 10px; }
+@media (min-width: 720px) { .vn-form__grid--rate { grid-template-columns: 2fr 1fr; } }

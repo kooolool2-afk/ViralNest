@@ -205,7 +205,7 @@ $words    = preg_split( '/\s+/u', trim( vn_c( 'home.hero_title' ) ) ) ?: array()
 							<h2 class="vn-h3" id="h-careers"><?= e( vn_c( 'careers.title' ) ) ?></h2>
 							<p><?= e( vn_c( 'careers.roles_text' ) ) ?></p>
 						</div>
-						<?= vn_btn( vn_t( 'apply_now' ), vn_url( 'careers' ), 'ghost' ) ?>
+						<?= vn_btn( vn_t( 'apply_now' ), vn_url( 'apply' ), 'ghost' ) ?>
 					</div>
 				</div>
 			</section>

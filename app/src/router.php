@@ -130,7 +130,7 @@ function vn_public_dispatch( string $path ): void {
 
 	if ( isset( $map[ $rest ] ) ) {
 		$route = $map[ $rest ];
-		if ( 'careers' === $route && ! vn_settings( 'careers_enabled' ) && ! vn_is_content_preview() ) {
+		if ( in_array( $route, array( 'careers', 'apply' ), true ) && ! vn_settings( 'careers_enabled' ) && ! vn_is_content_preview() ) {
 			$route = '404';
 		} elseif ( 'ar' === $lang && ! vn_page_ar_ready( $route ) && ! vn_is_content_preview() ) {
 			$route = 'untranslated';

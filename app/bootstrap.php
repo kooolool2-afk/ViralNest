@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-define( 'VN_VERSION', '2.1.0' );
+define( 'VN_VERSION', '2.2.0' );
 define( 'VN_APP', __DIR__ );
 define( 'VN_STORAGE', __DIR__ . '/storage' );
 if ( ! defined( 'VN_PUBLIC' ) ) {

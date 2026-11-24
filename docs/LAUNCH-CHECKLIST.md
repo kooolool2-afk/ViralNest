@@ -3,7 +3,7 @@
 Tick these before pointing visitors at the new site. Items marked **You** need information or decisions only ViralNest can give.
 
 ## Hosting
-- [ ] PHP 8.2/8.3, upload limits 10M/12M (DEPLOYMENT-HOSTINGER step 1)
+- [ ] PHP 8.2/8.3, upload limits 10M/16M (DEPLOYMENT-HOSTINGER step 1)
 - [ ] `app/` next to `public_html`, contents of `public/` inside it, `.htaccess` copied
 - [ ] `app/config.php` created, permission 600, long random `app_key`
 - [ ] First administrator created at `/admin/setup`
@@ -30,6 +30,6 @@ Tick these before pointing visitors at the new site. Items marked **You** need i
 - [ ] Old WordPress URLs that had traffic redirected if their paths changed
 
 ## Final checks
-- [ ] Send one test quote request and one test application (with a PDF), check both arrive in Studio and by email, then delete them
+- [ ] Send one test quote request and one test application (with a portfolio file and a PDF CV), check both arrive in Studio and by email, then delete them
 - [ ] Check the site on a phone in English and Arabic
 - [ ] Delete the old WordPress site only after the new one is confirmed working (keep its backup)

@@ -173,13 +173,17 @@ reset_limits();
 /* ------------------------------------------------------------------ */
 section( 'Freelancer applications' );
 $pdf  = tmp_file( "%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n" );
-$app  = array( 'name' => 'Mona Designer', 'email' => 'mona@example.com', 'phone' => '1012345678', 'phone_country' => 'EG', 'specialty' => 'designer', 'portfolio_links' => "behance.net/mona\nhttps://dribbble.com/mona", 'experience_years' => '3', 'availability' => 'part', 'languages' => array( 'ar', 'en' ), 'about' => 'Brand and social design.', 'rate' => 'Per project', 'location' => 'Cairo', 'lang' => 'en', 'token' => old_token(), 'idem' => uuid4() );
+$app  = array( 'name' => 'Mona Designer', 'email' => 'mona@example.com', 'phone' => '1012345678', 'phone_country' => 'EG', 'specialty' => 'designer', 'portfolio_links' => "behance.net/mona\nhttps://dribbble.com/mona", 'experience_years' => '3', 'availability' => 'part', 'languages' => array( 'ar', 'en' ), 'about' => 'Brand and social design.', 'rate_type' => 'project', 'rate_amount' => '٣٬٥٠٠', 'rate_currency' => 'EGP', 'contact_pref' => 'whatsapp', 'social' => array( 'instagram' => '@mona.designs', 'behance' => 'https://www.behance.net/mona', 'tiktok' => '' ), 'location' => 'Cairo', 'lang' => 'en', 'token' => old_token(), 'idem' => uuid4() );
 $a = vn_process_application( $app, array( 'name' => 'Mona CV.pdf', 'type' => 'application/pdf', 'tmp_name' => $pdf, 'error' => UPLOAD_ERR_OK, 'size' => filesize( $pdf ) ) );
 check( 'valid application with a PDF CV is saved', $a['ok'] && str_starts_with( $a['ref'], 'FL-' ), json_encode( $a ) );
 $row = db_row( 'SELECT * FROM vn_applications WHERE id = ?', array( $a['id'] ?? 0 ) );
 check( 'portfolio links normalized to https', $row && str_contains( $row['portfolio_links'], 'https://behance.net/mona' ) );
 check( 'CV stored outside the web root with a random name', $row && is_file( VN_STORAGE . '/cv/' . $row['cv_path'] ) && preg_match( '#^\d{4}/\d{2}/[a-f0-9]{32}\.pdf$#', $row['cv_path'] ) );
 check( 'original file name kept only as a label', $row && 'Mona CV.pdf' === $row['cv_name'] );
+check( 'rate saved as type, amount (Arabic digits accepted) and currency', $row && 'project' === $row['rate_type'] && 3500.0 === (float) $row['rate_amount'] && 'EGP' === $row['rate_currency'] && 'EGP 3,500 per project' === vn_rate_label( $row ) );
+$soc = $row ? vn_app_socials( $row ) : array();
+check( 'social handles become profile links; empty ones are skipped', 'https://instagram.com/mona.designs' === ( $soc['instagram'] ?? '' ) && 'https://www.behance.net/mona' === ( $soc['behance'] ?? '' ) && ! isset( $soc['tiktok'] ) );
+check( 'preferred contact saved', $row && 'whatsapp' === $row['contact_pref'] );
 check( 'application event carries the specialty only', 'designer' === db_val( "SELECT meta FROM vn_events WHERE event = 'apply_submit' ORDER BY id DESC LIMIT 1" ) );
 $dup = vn_process_application( array_merge( $app, array( 'idem' => uuid4() ) ) );
 check( 'same email and specialty within 30 days is a duplicate', $dup['ok'] && $dup['duplicate'] );
@@ -190,8 +194,29 @@ check( 'a non-PDF renamed to .pdf is rejected', ! $f['ok'] && 'err_cv_type' === 
 $big = vn_process_application( array_merge( $app, array( 'email' => 'big@example.com', 'idem' => uuid4() ) ), array( 'name' => 'cv.pdf', 'type' => 'application/pdf', 'tmp_name' => '', 'error' => UPLOAD_ERR_INI_SIZE, 'size' => 0 ) );
 check( 'oversized uploads are rejected', ! $big['ok'] && 'err_cv_size' === ( $big['errors']['cv'] ?? '' ) );
 reset_limits();
-$e = vn_process_application( array( 'lang' => 'en', 'token' => old_token(), 'specialty' => 'astronaut', 'portfolio_links' => 'not a link' ) );
-check( 'required fields and unknown specialty are rejected', ! $e['ok'] && isset( $e['errors']['name'], $e['errors']['email'], $e['errors']['phone'], $e['errors']['specialty'], $e['errors']['availability'], $e['errors']['portfolio_links'] ), json_encode( $e['errors'] ?? array() ) );
+$e = vn_process_application( array( 'lang' => 'en', 'token' => old_token(), 'specialty' => 'astronaut', 'portfolio_links' => 'not a link', 'social' => array( 'instagram' => 'not a profile!' ), 'rate_amount' => 'cheap', 'rate_currency' => 'BTC' ) );
+check( 'required fields and unknown specialty are rejected', ! $e['ok'] && isset( $e['errors']['name'], $e['errors']['email'], $e['errors']['phone'], $e['errors']['specialty'], $e['errors']['availability'], $e['errors']['portfolio_links'], $e['errors']['about'] ), json_encode( $e['errors'] ?? array() ) );
+check( 'rate type, price and currency are validated', 'err_rate_type' === ( $e['errors']['rate_type'] ?? '' ) && 'err_rate_amount_invalid' === ( $e['errors']['rate_amount'] ?? '' ) && 'err_rate_currency' === ( $e['errors']['rate_currency'] ?? '' ) );
+check( 'invalid social accounts are rejected', 'err_social_invalid' === ( $e['errors']['social_instagram'] ?? '' ) );
+reset_limits();
+$nowork = vn_process_application( array_merge( $app, array( 'email' => 'nowork@example.com', 'portfolio_links' => '', 'idem' => uuid4() ) ) );
+check( 'a link or a portfolio file is required', ! $nowork['ok'] && 'err_portfolio_required' === ( $nowork['errors']['portfolio_links'] ?? '' ) );
+reset_limits();
+$png  = tmp_file( '' );
+$im   = imagecreatetruecolor( 8, 8 );
+imagepng( $im, $png );
+$pfok = vn_process_application( array_merge( $app, array( 'email' => 'pf@example.com', 'portfolio_links' => '', 'idem' => uuid4() ) ), null, array( 'name' => 'My work.png', 'type' => 'image/png', 'tmp_name' => $png, 'error' => UPLOAD_ERR_OK, 'size' => filesize( $png ) ) );
+$pfrow = db_row( 'SELECT * FROM vn_applications WHERE id = ?', array( $pfok['id'] ?? 0 ) );
+check( 'a portfolio file alone is accepted and stored privately', $pfok['ok'] && $pfrow && preg_match( '#^\d{4}/\d{2}/[a-f0-9]{32}\.png$#', $pfrow['portfolio_path'] ) && is_file( VN_STORAGE . '/portfolio/' . $pfrow['portfolio_path'] ) && 'My work.png' === $pfrow['portfolio_name'] && 'image/png' === $pfrow['portfolio_mime'], json_encode( $pfok ) );
+reset_limits();
+$exe  = tmp_file( "MZ\x90\0 not an image" );
+$pfbad = vn_process_application( array_merge( $app, array( 'email' => 'pfbad@example.com', 'idem' => uuid4() ) ), null, array( 'name' => 'work.jpg', 'type' => 'image/jpeg', 'tmp_name' => $exe, 'error' => UPLOAD_ERR_OK, 'size' => filesize( $exe ) ) );
+check( 'a portfolio file that is not a PDF or image is rejected', ! $pfbad['ok'] && 'err_pf_type' === ( $pfbad['errors']['portfolio_file'] ?? '' ) );
+reset_limits();
+$pfpath = VN_STORAGE . '/portfolio/' . $pfrow['portfolio_path'];
+vn_delete_applications_where( 'id = ?', array( $pfrow['id'] ) );
+check( 'deleting an application deletes its portfolio file', ! is_file( $pfpath ) );
+reset_limits();
 reset_limits();
 $o = vn_process_application( array_merge( $app, array( 'email' => 'other@example.com', 'specialty' => 'other', 'specialty_other' => '', 'idem' => uuid4() ) ) );
 check( '“Other” specialty needs a description', ! $o['ok'] && isset( $o['errors']['specialty_other'] ) );
@@ -263,7 +288,7 @@ if ( $http ) {
 		curl_close( $ch );
 		return array( $code, substr( $raw, 0, $hs ), substr( $raw, $hs ) );
 	};
-	foreach ( array( '/', '/ar/', '/services/', '/work/', '/work-with-us/', '/about/', '/contact/', '/request-a-quote/', '/privacy-policy/', '/services/social-media-management/' ) as $p ) {
+	foreach ( array( '/', '/ar/', '/services/', '/work/', '/work-with-us/', '/work-with-us/apply/', '/ar/work-with-us/apply/', '/services/pr-influencer-marketing/', '/about/', '/contact/', '/request-a-quote/', '/privacy-policy/', '/services/social-media-management/' ) as $p ) {
 		list( $code, $h, $b ) = $get( $p );
 		check( "GET $p → 200", 200 === $code, (string) $code );
 	}
@@ -287,6 +312,8 @@ if ( $http ) {
 	check( 'robots.txt blocks the dashboard and points to the sitemap', str_contains( $b, 'Disallow: /admin' ) && str_contains( $b, 'Sitemap:' ) );
 	list( $code, $h ) = $get( '/admin/leads' );
 	check( 'dashboard pages need a sign-in', 302 === $code || 303 === $code );
+	list( $code, $h ) = $get( '/admin/applications/1/portfolio' );
+	check( 'portfolio files need a sign-in', 302 === $code || 303 === $code );
 	list( $code, $h ) = $get( '/admin/applications/1/cv' );
 	check( 'CV downloads need a sign-in', in_array( $code, array( 302, 303 ), true ) );
 	list( $code, $h, $b ) = $get( '/admin/login' );

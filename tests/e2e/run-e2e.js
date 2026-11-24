@@ -115,11 +115,23 @@ const unique = () => Date.now().toString(36) + Math.random().toString(36).slice(
 		await page.screenshot({ path: path.join(OUT, 'quote-success.png') });
 	});
 
-	await test('work with us: validation, other specialty and CV type check', async () => {
+	await test('work with us page links to the application page', async () => {
 		await page.goto(BASE + '/work-with-us/', { waitUntil: 'networkidle' });
+		assert(!(await page.locator('form[data-vn-form="apply"]').count()), 'no form on overview page');
+		await page.locator('.vn-page-hero a', { hasText: 'Apply now' }).click();
+		await page.waitForURL(/\/work-with-us\/apply\/$/);
+		assert(await page.locator('.vn-crumbs').textContent().then((t) => t.includes('Work with us') && t.includes('Apply')), 'breadcrumbs');
+		assert(await page.locator('.vn-nav__link[aria-current="page"]', { hasText: 'Work with us' }).count(), 'nav item active');
+	});
+
+	await test('work with us: validation, other specialty and CV type check', async () => {
+		await page.goto(BASE + '/work-with-us/apply/', { waitUntil: 'networkidle' });
+		await page.fill('#vn-social-instagram', 'not a profile!');
+		await page.fill('#vn-rate-amount', 'cheap');
 		await page.click('[data-vn-submit]');
 		await page.locator('[data-vn-summary]').waitFor({ state: 'visible' });
-		for (const f of ['name', 'email', 'phone', 'specialty', 'portfolio_links', 'availability']) {
+		assert(await page.locator('.vn-form__step').count() === 5, 'five sections');
+		for (const f of ['name', 'email', 'phone', 'specialty', 'about', 'rate_type', 'rate_amount', 'social_instagram', 'portfolio_links', 'availability']) {
 			assert(await page.locator('#err-' + f).isVisible(), f + ' error');
 		}
 		await page.locator('label.vn-chip--radio', { hasText: /^Other$/ }).click();
@@ -131,7 +143,7 @@ const unique = () => Date.now().toString(36) + Math.random().toString(36).slice(
 
 	let appRef = '';
 	await test('work with us: application with PDF CV is accepted', async () => {
-		await page.goto(BASE + '/work-with-us/', { waitUntil: 'networkidle' });
+		await page.goto(BASE + '/work-with-us/apply/', { waitUntil: 'networkidle' });
 		await page.waitForTimeout(3200);
 		await page.fill('#vn-name', 'E2E Designer');
 		await page.fill('#vn-email', `designer-${unique()}@example.com`);
@@ -143,8 +155,16 @@ const unique = () => Date.now().toString(36) + Math.random().toString(36).slice(
 		await page.selectOption('#vn-availability', { index: 1 });
 		await page.locator('label.vn-chip', { hasText: 'English' }).click();
 		await page.fill('#vn-about', 'Social and brand design for food and beauty brands.');
+		await page.locator('label.vn-chip--radio', { hasText: 'WhatsApp' }).click();
+		await page.fill('#vn-social-instagram', '@e2e.designer');
+		await page.fill('#vn-social-linkedin', 'https://linkedin.com/in/e2e-designer');
+		await page.locator('label.vn-chip--radio', { hasText: 'Per hour' }).click();
+		await page.fill('#vn-rate-amount', '25');
+		await page.selectOption('#vn-rate-currency', 'USD');
+		await page.setInputFiles('#vn-portfolio-file', { name: 'work-sample.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64') });
 		await page.setInputFiles('#vn-cv', pdf);
-		assert((await page.locator('[data-vn-file-name]').textContent()).includes('sample-cv.pdf'), 'file name shown');
+		assert((await page.locator('#field-cv [data-vn-file-name]').textContent()).includes('sample-cv.pdf'), 'file name shown');
+		assert((await page.locator('#field-portfolio_file [data-vn-file-name]').textContent()).includes('work-sample.png'), 'portfolio file name shown');
 		await page.click('[data-vn-submit]');
 		const ok = page.locator('[data-vn-success]');
 		await ok.waitFor({ state: 'visible', timeout: 10000 });
@@ -155,7 +175,7 @@ const unique = () => Date.now().toString(36) + Math.random().toString(36).slice(
 	});
 
 	await test('Arabic pages are right-to-left with Arabic text', async () => {
-		await page.goto(BASE + '/ar/work-with-us/', { waitUntil: 'networkidle' });
+		await page.goto(BASE + '/ar/work-with-us/apply/', { waitUntil: 'networkidle' });
 		assert(await page.getAttribute('html', 'dir') === 'rtl', 'dir rtl');
 		assert(await page.getAttribute('html', 'lang') === 'ar-EG', 'lang');
 		assert(/\p{Script=Arabic}/u.test(await page.locator('h1').textContent()), 'arabic heading');
@@ -256,12 +276,19 @@ const unique = () => Date.now().toString(36) + Math.random().toString(36).slice(
 		assert(csv.includes('Reference') || csv.includes('VN-'), 'csv content');
 	});
 	await test('application appears under Freelancers with CV download', async () => {
-		await a.page.goto(BASE + '/admin/applications?q=' + encodeURIComponent(appRef));
+		await a.page.goto(BASE + '/admin/applications?rate_type=hour&currency=USD&rate_max=30&pf=yes&q=' + encodeURIComponent(appRef));
 		await a.page.locator('.a-table tbody tr').first().locator('a.a-strong').click();
 		assert((await a.page.locator('.a-person').textContent()).includes('E2E Designer'), 'detail');
 		const [dl] = await Promise.all([a.page.waitForEvent('download'), a.page.click('a[href$="/cv"]')]);
 		const buf = fs.readFileSync(await dl.path());
 		assert(buf.slice(0, 5).toString() === '%PDF-', 'pdf');
+		const detail = await a.page.locator('.a-detail__main').textContent();
+		assert(detail.includes('USD 25 per hour'), 'rate shown');
+		assert(detail.includes('instagram.com/e2e.designer') && detail.includes('linkedin.com/in/e2e-designer'), 'socials shown');
+		assert(detail.includes('WhatsApp') && detail.includes('work-sample.png'), 'contact preference and portfolio file shown');
+		assert(await a.page.locator('.a-filecard img').evaluate((img) => img.complete && img.naturalWidth > 0), 'portfolio image preview');
+		const [pdl] = await Promise.all([a.page.waitForEvent('download'), a.page.click('.a-filecard a:text("Download")')]);
+		assert(fs.readFileSync(await pdl.path()).slice(1, 4).toString() === 'PNG', 'portfolio download');
 		await a.page.selectOption('select[name=status]', 'shortlisted');
 		await a.page.click('form:has(select[name=status]) button[type=submit]');
 		assert((await a.page.locator('.a-person .a-badge').textContent()).includes('Shortlisted'), 'status');

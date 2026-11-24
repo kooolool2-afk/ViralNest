@@ -9,7 +9,7 @@ declare(strict_types=1);
 /** Render a public route inside the site layout. */
 function vn_render_page( string $route ): void {
 	$view = match ( $route ) {
-		'home', 'about', 'services', 'service', 'portfolio', 'project', 'contact', 'quote', 'privacy', 'careers', 'untranslated' => $route,
+		'home', 'about', 'services', 'service', 'portfolio', 'project', 'contact', 'quote', 'privacy', 'careers', 'apply', 'untranslated' => $route,
 		default => '404',
 	};
 	ob_start();
@@ -73,6 +73,15 @@ function vn_head_assets(): string {
 			'errCvType'   => vn_t( 'err_cv_type' ),
 			'errCvSize'   => vn_t( 'err_cv_size' ),
 			'errAvail'    => vn_t( 'err_availability' ),
+			'errAbout'    => vn_t( 'err_about_required' ),
+			'errSocial'   => vn_t( 'err_social_invalid' ),
+			'errRateType' => vn_t( 'err_rate_type' ),
+			'errAmountReq' => vn_t( 'err_rate_amount_required' ),
+			'errAmount'   => vn_t( 'err_rate_amount_invalid' ),
+			'errCurrency' => vn_t( 'err_rate_currency' ),
+			'errWork'     => vn_t( 'err_portfolio_required' ),
+			'errPfType'   => vn_t( 'err_pf_type' ),
+			'errPfSize'   => vn_t( 'err_pf_size' ),
 			'openMenu'    => vn_t( 'open_menu' ),
 			'closeMenu'   => vn_t( 'close_menu' ),
 			'cursorView'  => vn_t( 'cursor_view' ),

@@ -196,6 +196,9 @@ function vn_breadcrumbs(): array {
 	$route = vn_route();
 	$home  = array( 'ar' === vn_lang() ? 'الرئيسية' : 'Home', vn_url( 'home' ) );
 	$item  = vn_current_item();
+	if ( 'apply' === $route ) {
+		return array( $home, array( vn_c( 'global.nav_careers' ), vn_url( 'careers' ) ), array( vn_c( 'careers.apply_crumb' ), vn_url( 'apply' ) ) );
+	}
 	if ( in_array( $route, array( 'about', 'services', 'portfolio', 'contact', 'quote', 'privacy', 'careers' ), true ) ) {
 		$label = 'quote' === $route ? vn_c( 'quote.title' ) : ( 'privacy' === $route ? vn_c( 'privacy.title' ) : vn_c( 'global.nav_' . $route ) );
 		return array( $home, array( $label, vn_url( $route ) ) );
@@ -219,7 +222,7 @@ function vn_robots_txt(): never {
 function vn_sitemap_entries(): array {
 	$entries = array();
 	foreach ( vn_static_routes() as $route ) {
-		if ( 'careers' === $route && ! vn_settings( 'careers_enabled' ) ) {
+		if ( in_array( $route, array( 'careers', 'apply' ), true ) && ! vn_settings( 'careers_enabled' ) ) {
 			continue;
 		}
 		$langs     = vn_page_ar_ready( $route ) ? array( 'en', 'ar' ) : array( 'en' );

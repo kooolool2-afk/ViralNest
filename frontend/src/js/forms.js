@@ -7,6 +7,15 @@ import { track, attrFields } from './track.js';
 const C = window.VN || {};
 const S = C.strings || {};
 const CV_MAX = 5 * 1024 * 1024;
+const PF_MAX = 8 * 1024 * 1024;
+const PF_TYPES = /\.(pdf|jpe?g|png|webp)$/i;
+const SOCIAL = /^(@?[A-Za-z0-9._-]{1,60}|(https?:\/\/)?[^\s/]+\.[^\s/]{2,}(\/\S*)?)$/i;
+const digitsLatin = (s) => s.replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/٫/g, '.').replace(/[,٬\s]/g, '');
+const fileError = (name, f) => {
+	if (!f) return '';
+	if (name === 'cv') return !/\.pdf$/i.test(f.name) && f.type !== 'application/pdf' ? S.errCvType : f.size > CV_MAX ? S.errCvSize : '';
+	return !PF_TYPES.test(f.name) ? S.errPfType : f.size > PF_MAX ? S.errPfSize : '';
+};
 const fmt = (s, n) => String(s || '').replace('%d', n);
 const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
 	const r = (crypto.getRandomValues(new Uint8Array(1))[0] & 15);
@@ -71,15 +80,25 @@ function validate(form, kind) {
 		if (w && !/^(https?:\/\/)?[^\s/]+\.[^\s]{2,}/i.test(w)) e.website = S.errWebsite;
 	} else {
 		if (!form.querySelector('input[name="specialty"]:checked')) e.specialty = S.errSpecialty;
-		const links = v('portfolio_links');
-		if (!links) e.portfolio_links = S.errLinksReq;
-		else if (!links.split(/\n+/).map((t) => t.trim()).filter(Boolean).every((t) => /^(https?:\/\/)?[^\s/]+\.[^\s/]{2,}(\/\S*)?$/i.test(t))) e.portfolio_links = S.errLinks;
+		form.querySelectorAll('input[name^="social["]').forEach((el) => {
+			const val = el.value.trim();
+			if (val && !SOCIAL.test(val)) e['social_' + el.name.slice(7, -1)] = S.errSocial;
+		});
+		if (!v('about')) e.about = S.errAbout;
+		if (!form.querySelector('input[name="rate_type"]:checked')) e.rate_type = S.errRateType;
+		const amount = digitsLatin(v('rate_amount'));
+		if (!amount) e.rate_amount = S.errAmountReq;
+		else if (!/^\d{1,9}(\.\d{1,2})?$/.test(amount) || +amount <= 0) e.rate_amount = S.errAmount;
+		if (!v('rate_currency')) e.rate_currency = S.errCurrency;
 		if (!v('availability')) e.availability = S.errAvail;
-		const file = form.elements.cv?.files?.[0];
-		if (file) {
-			if (!/\.pdf$/i.test(file.name) && file.type !== 'application/pdf') e.cv = S.errCvType;
-			else if (file.size > CV_MAX) e.cv = S.errCvSize;
-		}
+		const links = v('portfolio_links');
+		const pf = form.elements.portfolio_file?.files?.[0];
+		if (links && !links.split(/\n+/).map((t) => t.trim()).filter(Boolean).every((t) => /^(https?:\/\/)?[^\s/]+\.[^\s/]{2,}(\/\S*)?$/i.test(t))) e.portfolio_links = S.errLinks;
+		else if (!links && !pf) e.portfolio_links = S.errWork;
+		const pfErr = fileError('portfolio_file', pf);
+		if (pfErr) e.portfolio_file = pfErr;
+		const cvErr = fileError('cv', form.elements.cv?.files?.[0]);
+		if (cvErr) e.cv = cvErr;
 	}
 	form.querySelectorAll('[maxlength]').forEach((el) => {
 		if (el.value.length > +el.maxLength && el.name) e[el.name] = fmt(S.errTooLong, el.maxLength);
@@ -107,8 +126,7 @@ function applyUi(form) {
 	const sync = () => { const c = form.querySelector('input[name="specialty"]:checked'); if (other) other.hidden = !c || c.value !== 'other'; };
 	form.addEventListener('change', (e) => { if (e.target.name === 'specialty') { sync(); setError(form, 'specialty', ''); } });
 	sync();
-	const wrap = form.querySelector('[data-vn-file]');
-	if (wrap) {
+	form.querySelectorAll('[data-vn-file]').forEach((wrap) => {
 		const input = wrap.querySelector('input[type=file]');
 		const label = wrap.querySelector('[data-vn-file-name]');
 		const initial = label?.textContent;
@@ -116,15 +134,14 @@ function applyUi(form) {
 			const f = input.files?.[0];
 			wrap.classList.toggle('has-file', !!f);
 			if (label) label.textContent = f ? `${f.name} · ${(f.size / 1048576).toFixed(1)} MB` : initial;
-			if (f) {
-				const bad = !/\.pdf$/i.test(f.name) ? S.errCvType : f.size > CV_MAX ? S.errCvSize : '';
-				setError(form, 'cv', bad);
-			} else setError(form, 'cv', '');
+			setError(form, input.name, fileError(input.name, f));
+			if (f && input.name === 'portfolio_file' && !fileError(input.name, f)) setError(form, 'portfolio_links', '');
 		};
 		input.addEventListener('change', show);
 		['dragenter', 'dragover'].forEach((t) => wrap.addEventListener(t, () => wrap.classList.add('is-drag')));
 		['dragleave', 'drop'].forEach((t) => wrap.addEventListener(t, () => wrap.classList.remove('is-drag')));
-	}
+	});
+	form.addEventListener('change', (e) => { if (e.target.name === 'rate_type') setError(form, 'rate_type', ''); });
 }
 
 function initForm(form) {

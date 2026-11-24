@@ -382,3 +382,24 @@ a.a-kpi:hover { border-color: var(--line-2); }
 .a-checklist .is-top { font-weight: 600; margin-top: 8px; }
 .a-checklist .is-top:first-child { margin-top: 0; }
 .a-checklist .is-child { padding-inline-start: 26px; color: var(--muted); }
+
+/* Freelancer application details */
+.a-rate { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px 14px; margin: 18px 0 4px; padding: 16px 18px; border-radius: 14px; border: 1px solid var(--line); background: rgb(255 255 255 / .03); }
+.a-rate__label { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.a-rate__value { font-size: 22px; font-weight: 700; letter-spacing: -.01em; }
+.a-socials { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.a-socials a { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); text-decoration: none; color: inherit; }
+.a-socials a:hover { border-color: var(--line-2); background: rgb(255 255 255 / .03); }
+.a-socials .a-ico { width: 20px; height: 20px; flex: none; color: var(--cyan); }
+.a-socials span { display: grid; min-width: 0; }
+.a-socials small { color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.a-filecard { margin-top: 10px; padding: 12px; border-radius: 14px; border: 1px solid var(--line); }
+.a-filecard img { display: block; max-width: 100%; max-height: 420px; border-radius: 10px; margin-bottom: 10px; object-fit: contain; background: #000; }
+.a-filecard p { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; }
+.a-soc-icons { display: flex; gap: 6px; margin-top: 4px; }
+.a-soc-icons .a-ico { width: 15px; height: 15px; color: var(--muted); }
+.a-soc-icons a:hover .a-ico { color: var(--text, #fff); }
+.a-nowrap { white-space: nowrap; }
+.a-field--num input { width: 110px; }
+.a-detail__main .a-quote + .a-h3, .a-detail__main .a-socials + .a-h3, .a-detail__main p + .a-h3 { margin-top: 22px; }
+.a-sub .a-ico, .a-sub svg { display: inline-block; width: 13px; height: 13px; vertical-align: -2px; }

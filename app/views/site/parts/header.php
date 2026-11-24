@@ -15,7 +15,7 @@ $is_svc   = in_array( $route, array( 'services', 'service' ), true );
 		<nav class="vn-nav" id="vn-nav" aria-label="<?= ea( vn_t( 'main_nav' ) ) ?>" data-vn-nav>
 			<ul class="vn-nav__list">
 				<?php foreach ( vn_nav_items() as $item ) :
-					$current = $item['route'] === $route || ( 'services' === $item['route'] && $is_svc ) || ( 'portfolio' === $item['route'] && 'project' === $route );
+					$current = $item['route'] === $route || ( 'services' === $item['route'] && $is_svc ) || ( 'portfolio' === $item['route'] && 'project' === $route ) || ( 'careers' === $item['route'] && 'apply' === $route );
 					if ( 'careers' === $item['route'] && ! vn_settings( 'careers_enabled' ) ) {
 						continue;
 					}

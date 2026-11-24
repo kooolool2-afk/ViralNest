@@ -33,11 +33,12 @@ Every form submission lands here with a reference like **VN-00012**.
 
 ## Freelancers (Work with us)
 
-Applications from the **Work with us** page arrive with a reference like **FL-00004**.
+Freelancers apply on **Work with us > Apply** (`/work-with-us/apply/`, Arabic `/ar/work-with-us/apply/`). The form has five parts: personal information; contact details (email, phone/WhatsApp, best way to reach them, and Instagram, TikTok, Facebook, LinkedIn, Behance, YouTube and X accounts); their work (specialty, **how they can help / the services they provide**, experience, availability, languages); their **rate** (per hour or per project, price and currency); and their **portfolio** (links, a portfolio file in PDF/JPG/PNG/WebP up to 8 MB, or both) plus an optional CV (PDF, up to 5 MB). Each application arrives with a reference like **FL-00004**.
 
 - Statuses: New → Reviewing → Shortlisted → Contacted, or Rejected.
-- Filter by specialty, status, availability and language; search by name or email.
-- The detail page shows portfolio links, experience, languages, availability, rate expectations and the optional **CV (PDF)**, which you download from the dashboard only. CVs are stored privately, never on a public URL.
+- Filter by status, specialty, experience, availability, rate type, currency, **maximum price**, preferred contact, "has portfolio file" and "has CV". Search covers name, email, phone, skills, social accounts and FL references.
+- The list shows each person's rate, files and social icons. The detail page shows everything they sent: rate, preferred contact, social accounts (clickable), portfolio links, a preview of an image portfolio, and downloads for the portfolio file and CV. Files are stored privately and are only downloadable from Studio, never from a public URL.
+- The page texts (headline, intro, the "Ready to join" band, the form heading) are editable in Website content > Work with us, in English and Arabic.
 - Notes and status history like quote requests. **Export CSV** for admins.
 - Switch the page off or on in Settings > Freelancers. Alert emails for new applications are optional.
 - Applications and CVs are deleted automatically after the retention period you set (default 2 years).

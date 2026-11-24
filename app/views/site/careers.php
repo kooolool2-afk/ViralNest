@@ -1,6 +1,6 @@
 <?php
 /** Work with us: freelancer/specialist network page with the application form. */
-$hero_extra = '<div class="vn-page-hero__actions" data-reveal>' . vn_btn( vn_t( 'apply_now' ), '#apply-form', 'primary vn-btn--lg', '', 'arrow' ) . '</div>';
+$hero_extra = '<div class="vn-page-hero__actions" data-reveal>' . vn_btn( vn_t( 'apply_now' ), vn_url( 'apply' ), 'primary vn-btn--lg', 'careers-hero', 'arrow' ) . '</div>';
 echo vn_page_hero( vn_c( 'careers.title' ), vn_c( 'careers.intro' ), vn_c( 'careers.eyebrow' ), $hero_extra );
 $icons = array( 'file', 'users', 'clock', 'shield', 'layers', 'spark' );
 ?>
@@ -36,8 +36,4 @@ $icons = array( 'file', 'users', 'clock', 'shield', 'layers', 'spark' );
 		</div>
 	</div>
 </section>
-<section class="vn-section">
-	<div class="vn-wrap vn-narrow">
-		<div class="vn-form-card"><?php vn_part( 'apply-form' ); ?></div>
-	</div>
-</section>
+<?php vn_part( 'cta-band', array( 'title' => vn_c( 'careers.cta_title' ), 'text' => vn_c( 'careers.cta_text' ), 'button' => vn_t( 'apply_now' ), 'url' => vn_url( 'apply' ), 'placement' => 'careers-band' ) ); ?>

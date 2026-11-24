@@ -1,15 +1,15 @@
-# ViralNest 2.1 handover
+# ViralNest 2.2 handover
 
 ViralNest is now a custom PHP + MySQL website with its own dashboard, **ViralNest Studio**. WordPress is not used. The old WordPress version is kept on the `wordpress` branch for reference only.
 
 ## What's in the box
 - **Public site (EN + AR, right-to-left):**
-  - Pages: Home, Services (9 categories, including PR & Influencer Marketing, each with its own page), Work (portfolio case studies), About, Work with us (freelancer applications), Contact, Request a Quote, Privacy, and 404.
+  - Pages: Home, Services (9 categories, including PR & Influencer Marketing, each with its own page), Work (portfolio case studies), About, Work with us, Work with us > Apply (freelancer application form), Contact, Request a Quote, Privacy, and 404.
   - Features: animations that respect reduced motion, a consent banner, first-party analytics, SEO (sitemap, hreflang, schema) and the real ViralNest logo.
 - **ViralNest Studio (`/admin`):**
   - Overview
   - Quote requests (statuses, notes, CSV)
-  - Freelancers (New, Reviewing, Shortlisted, Contacted, Rejected; filters, CV download, CSV, email alerts)
+  - Freelancers (New, Reviewing, Shortlisted, Contacted, Rejected; rate, social accounts, portfolio file and CV; filters by rate, currency, max price and more; CSV; email alerts)
   - Analytics
   - Services
   - Portfolio (case studies with client-permission and verified-results switches)
@@ -28,7 +28,7 @@ ViralNest is now a custom PHP + MySQL website with its own dashboard, **ViralNes
 | Colours, type, components | `docs/DESIGN-GUIDE.md` |
 | Tables and data retention | `docs/DATABASE-SCHEMA.md` |
 | Screenshots | `design/screenshots/` |
-| Upload package | `dist/viralnest-hostinger-2.1.0.zip` (build with `tools/package.sh`) |
+| Upload package | `dist/viralnest-hostinger-2.2.0.zip` (build with `tools/package.sh`) |
 
 ## Rules this build follows
 - No invented testimonials, results, client logos, prices, contact details or office locations. Prices are hidden until you switch them on.
