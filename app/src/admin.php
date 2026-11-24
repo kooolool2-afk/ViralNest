@@ -519,7 +519,7 @@ function vn_admin_send_cv( array $app ): never {
 /* ---------------------------------------------------------------- Services */
 
 function vn_service_icons(): array {
-	return array( 'strategy', 'social', 'content', 'design', 'media', 'branding', 'seo', 'campaign', 'globe', 'users', 'layers', 'spark' );
+	return array( 'strategy', 'social', 'content', 'design', 'media', 'branding', 'seo', 'campaign', 'influencer', 'globe', 'users', 'layers', 'spark' );
 }
 
 function vn_admin_services( int $id, string $sub, bool $post ): void {

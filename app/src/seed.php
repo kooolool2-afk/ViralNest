@@ -3,6 +3,7 @@
  * Starter content, created once by the first-run setup.
  *
  * - The 8 service categories and their sub-services from Part 04 of the ViralNest Master Brief v2.0,
+ *   plus PR & Influencer Marketing (UGC creators and blogger collaborations), added at the owner's request,
  *   published in English and Egyptian Arabic. A focused subset is enabled in the quote form.
  * - Portfolio drafts for the projects named in the brief: unpublished, client not approved, no
  *   results. Nothing here invents results, testimonials, prices or contact details.
@@ -111,6 +112,16 @@ function vn_starter_services(): array {
 				array( 'promotional-sales-campaigns', 'publish', array( 'Promotional and sales campaigns', 'Offers and promotions designed to drive sales.' ), array( 'حملات العروض والمبيعات', 'عروض وبروموشنز معمولة عشان تزوّد المبيعات.' ), 1 ),
 				array( 'brand-awareness-campaigns', 'publish', array( 'Brand awareness campaigns', 'Getting your brand known by the right audience.' ), array( 'حملات الوعي بالبراند', 'نعرّف الجمهور الصح بالبراند بتاعك.' ), 1 ),
 				array( 'creative-advertising-concepts', 'publish', array( 'Creative advertising concepts', 'Big ideas that make your ads memorable.' ), array( 'أفكار إعلانية إبداعية', 'أفكار كبيرة بتخلّي إعلاناتك تتفتكر.' ), 0 ),
+			),
+		),
+		array(
+			'slug' => 'pr-influencer-marketing', 'icon' => 'influencer',
+			'en'   => array( 'PR & Influencer Marketing', 'We connect your brand with new UGC creators and bloggers, and set up the collaborations for you.', 'People trust people. We connect your brand with new UGC creators who make authentic content about your products, and we set up collaborations with bloggers and influencers whose audience fits yours. We handle the coordination for you: choosing the right creators, writing a clear brief, agreeing on the timeline and reviewing the content before it goes live.' ),
+			'ar'   => array( 'العلاقات العامة والتسويق بالمؤثرين', 'بنوصّلك بصنّاع محتوى UGC جداد وبلوجرز، وبنظبطلك التعاون معاهم.', 'الناس بتصدّق الناس. بنوصّل البراند بتاعك بصنّاع محتوى UGC جداد بيعملوا محتوى حقيقي عن منتجاتك، وبنعملك تعاونات مع بلوجرز ومؤثرين جمهورهم شبه جمهورك. وإحنا بنتابع التنسيق كله بدالك: نختار صنّاع المحتوى المناسبين، ونكتب بريف واضح، ونتفق على المواعيد، ونراجع المحتوى قبل ما ينزل.' ),
+			'children' => array(
+				array( 'ugc-creators', 'publish', array( 'UGC creator connections', 'We connect you with new UGC creators who make real, relatable content for your brand.' ), array( 'التوصيل بصنّاع محتوى UGC', 'بنوصّلك بصنّاع محتوى UGC جداد بيعملوا محتوى حقيقي وقريب من الناس للبراند بتاعك.' ), 1 ),
+				array( 'blogger-collaborations', 'publish', array( 'Blogger and influencer collaborations', 'Partnerships with bloggers and influencers whose audience fits your brand.' ), array( 'التعاون مع البلوجرز والمؤثرين', 'شراكات مع بلوجرز ومؤثرين جمهورهم مناسب للبراند بتاعك.' ), 1 ),
+				array( 'collaboration-management', 'publish', array( 'Collaboration management', 'Briefs, timelines and content review, handled for you from start to finish.' ), array( 'إدارة التعاونات', 'البريف والمواعيد ومراجعة المحتوى، بنتابعها بدالك من الأول للآخر.' ), 0 ),
 			),
 		),
 	);
@@ -263,4 +274,27 @@ function vn_seed_projects(): void {
 			}
 		}
 	}
+}
+
+/**
+ * Adds starter services introduced after a site was first set up. Each patch runs once; if the
+ * owner later deletes or edits the service in Studio, it is not re-created or overwritten.
+ */
+function vn_seed_patches(): void {
+	if ( ! kv_get( 'seeded' ) || kv_get( 'seed_patch_pr_influencer' ) ) {
+		return;
+	}
+	foreach ( vn_starter_services() as $svc ) {
+		if ( 'pr-influencer-marketing' !== $svc['slug'] ) {
+			continue;
+		}
+		$pos = (int) db_val( 'SELECT COALESCE(MAX(position), 0) FROM vn_services WHERE parent_id = 0' ) + 10;
+		$pid = vn_seed_service( 0, $svc['slug'], 'publish', $svc['en'], $svc['ar'], 1, $pos, $svc['icon'], false );
+		$co  = 0;
+		foreach ( $svc['children'] as $child ) {
+			vn_seed_service( $pid, $child[0], $child[1], $child[2], $child[3], (int) ( $child[4] ?? 1 ), $co += 10, 'strategy', false );
+		}
+	}
+	kv_set( 'seed_patch_pr_influencer', gmdate( 'c' ) );
+	vn_catalog_flush();
 }

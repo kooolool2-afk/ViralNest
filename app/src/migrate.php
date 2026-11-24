@@ -23,6 +23,9 @@ function vn_maybe_migrate(): void {
 		// Tables don't exist yet: fall through and create them.
 	}
 	vn_migrate();
+	if ( function_exists( 'vn_seed_patches' ) ) {
+		vn_seed_patches();
+	}
 	kv_set( 'schema', $want );
 }
 

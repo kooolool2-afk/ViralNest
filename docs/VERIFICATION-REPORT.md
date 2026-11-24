@@ -1,6 +1,6 @@
 # ViralNest verification report
 
-**Date:** 23 November 2026 · **Build:** ViralNest 2.0.0 (custom PHP + MySQL, no WordPress)
+**Date:** 23 November 2026 · **Build:** ViralNest 2.1.0 (custom PHP + MySQL, no WordPress)
 
 This report lists only checks that were actually run, with their results. Checks that need the real hosting, real accounts or a human decision are listed under **Pending** below. Those were not run and are not claimed here.
 
@@ -19,7 +19,7 @@ This report lists only checks that were actually run, with their results. Checks
 | Suite | Command | Result |
 |---|---|---|
 | PHP syntax lint | `php -l` on every PHP file | **0 errors** |
-| Integration tests (real database `vn_test`, plus HTTP checks) | `php tests/php/run-tests.php --http` | **101 passed, 0 failed** |
+| Integration tests (real database `vn_test`, plus HTTP checks) | `php tests/php/run-tests.php --http` | **105 passed, 0 failed** |
 | Browser end-to-end tests | `node tests/e2e/run-e2e.js` | **25 passed, 0 failed** |
 | Visual review | 50 screenshots in `design/screenshots/`, reviewed by eye | Done. The issues found were fixed (see below). |
 
